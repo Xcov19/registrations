@@ -1,0 +1,4 @@
+fastapi[all]
+hypercorn
+pre-commit
+gunicorn==20.1.0
