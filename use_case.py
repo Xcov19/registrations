@@ -15,4 +15,4 @@ class HospitalRegistrationUseCase:
         return self.__repo.is_duplicate(**healthcare_data.dict())
 
     async def create_entry(self, healthcare_data: HealthCareData) -> NewHealthCareData:
-        return self.__repo.create_object(**healthcare_data.dict())
+        return await self.__repo.create_object(**healthcare_data.dict())

@@ -15,5 +15,5 @@ class MongoRepo(IRepo):
         ...
 
     @classmethod
-    def create_object(cls, **kwargs) -> NewHealthCareData:
+    async def create_object(cls, **kwargs) -> NewHealthCareData:
         ...
