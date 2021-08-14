@@ -34,5 +34,5 @@ class IRepo(metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def create_object(cls, **kwargs) -> NewHealthCareData:
+    async def create_object(cls, **kwargs) -> NewHealthCareData:
         raise NotImplementedError
