@@ -18,7 +18,7 @@ class IRepo(metaclass=abc.ABCMeta):
         return hasattr(subclass, method_name)
 
     @classmethod
-    def __subclasshook__(cls, subclass) -> Union[bool, NotImplemented]:
+    def __subclasshook__(cls, subclass):
         impl_fn = functools.partial(cls.get_impl, subclass)
         return all(map(impl_fn, cls.impl_methods))
 

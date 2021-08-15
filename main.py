@@ -6,6 +6,9 @@ from entities import HealthCareData
 from repo import MongoRepo
 from use_case import HospitalRegistrationUseCase
 
+import uvloop
+import asyncio
+
 app = fastapi.FastAPI(
     debug=settings.DEBUG,
 )
@@ -32,10 +35,12 @@ async def register_hospital_center(
 
 
 if __name__ == "__main__":
-    from hypercorn import run as hypercorn_run
+    from hypercorn.asyncio import serve
     from hypercorn.config import Config
 
     config = Config()
+    config.bind = "0.0.0.0:8080"
     # TODO: fill up config.toml
-    config.from_toml("config.toml")
-    hypercorn_run.run(config)
+    # config.from_toml("config.toml")
+    uvloop.install()
+    asyncio.run(serve(app, config))
