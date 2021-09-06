@@ -13,7 +13,10 @@ app = fastapi.FastAPI(
     debug=settings.DEBUG,
 )
 
+
 register_hospital_use_case = HospitalRegistrationUseCase(MongoRepo)
+
+uvloop.install()
 
 
 @app.post(
@@ -42,5 +45,4 @@ if __name__ == "__main__":
     config.bind = "0.0.0.0:8080"
     # TODO: fill up config.toml
     # config.from_toml("config.toml")
-    uvloop.install()
     asyncio.run(serve(app, config))
