@@ -7,4 +7,5 @@ ports:
   onOpen: open-preview
 tasks:
   - before: python3 -m pip install -r requirements.develop.txt
+    init: pre-commit install && pre-commit autoupdate
     command: hypercorn -k uvloop --bind="0.0.0.0:8080" --debug --reload main
