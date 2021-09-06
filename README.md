@@ -19,6 +19,12 @@ You need to install docker machine & docker compose.
 docker-compose up --build
 ```
 
+### On Gitpod
+
+```bash
+https://gitpod.io/#https://github.com/Xcov19/registrations
+```
+
 ### Developing
 If you are locally developing & debugging you could do:
 ```bash
