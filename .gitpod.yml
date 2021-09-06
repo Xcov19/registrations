@@ -1,0 +1,10 @@
+image:
+  file: .gitpod.Dockerfile
+  context: .
+ports:
+- port: 8080
+  visibility: public
+  onOpen: open-preview
+tasks:
+  - before: python3 -m pip install -r requirements.develop.txt
+    command: hypercorn -k uvloop --bind="0.0.0.0:8080" --debug --reload main

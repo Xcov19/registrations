@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    entrypoint: hypercorn -k uvloop --insecure-bind="172.17.0.1:8080" --debug --reload main
+    entrypoint: hypercorn -k uvloop --bind="0.0.0.0:8080" --debug --reload main
     restart: always
     container_name: backend
     build:
@@ -13,10 +13,6 @@ services:
     expose:
       - 8080
     hostname: backend
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: any
 
     volumes:
       - ./storage:/storage
