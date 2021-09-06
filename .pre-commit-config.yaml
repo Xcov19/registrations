@@ -1,0 +1,35 @@
+default_language_version:
+    python: python3.8
+repos:
+  - repo: https://github.com/psf/black
+    rev: 21.8b0
+    hooks:
+      - id: black
+        exclude: venv
+  - repo: https://github.com/asottile/reorder_python_imports
+    rev: v2.6.0
+    hooks:
+      - id: reorder-python-imports
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+    - id: check-docstring-first
+    - id: check-json
+    - id: check-yaml
+    - id: check-ast
+    - id: check-merge-conflict
+    - id: end-of-file-fixer
+    - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        args:
+          - --rcfile=.pylintrc
+          - --disable=C
+          - --disable=C0415
+          - --disable=W
+          - --msg-template="{path}||{msg_id}||{symbol}||{category}||{line}||{column}||{msg}"

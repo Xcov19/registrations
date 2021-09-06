@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  backend:
+    entrypoint: hypercorn -k uvloop --insecure-bind="172.17.0.1:8080" --debug --reload main
+    restart: always
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    expose:
+      - 8080
+    hostname: backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+
+    volumes:
+      - ./storage:/storage
