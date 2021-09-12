@@ -9,5 +9,3 @@ RUN rm -rf *
 WORKDIR /app
 
 COPY . /app
-
-# ENTRYPOINT hypercorn -k uvloop --insecure-bind="172.17.0.1:8080" --debug --reload main

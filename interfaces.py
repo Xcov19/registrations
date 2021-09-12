@@ -1,8 +1,9 @@
 import abc
 import functools
-from typing import Union
 
-from entities import NewHealthCareData
+import beanie
+
+from models import HealthCareData
 
 
 class IRepo(metaclass=abc.ABCMeta):
@@ -24,15 +25,20 @@ class IRepo(metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def validate_entry(cls, **kwargs) -> bool:
+    async def get_collection(cls, collections: list):
         raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
-    def is_duplicate(cls, **kwargs) -> bool:
+    async def validate_entry(cls, collection: beanie.Document, /, **kwargs) -> bool:
         raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
-    async def create_object(cls, **kwargs) -> NewHealthCareData:
+    async def is_duplicate(cls, collection: beanie.Document, /, **kwargs) -> bool:
+        raise NotImplementedError
+
+    @classmethod
+    @abc.abstractmethod
+    async def create_object(cls, collection, /, **kwargs):
         raise NotImplementedError

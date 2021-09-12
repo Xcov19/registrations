@@ -1,13 +1,13 @@
+import asyncio
+
 import fastapi
+import uvloop
 from starlette import status
 
 import settings
-from entities import HealthCareData
+from models import HealthCareData
 from repo import MongoRepo
 from use_case import HospitalRegistrationUseCase
-
-import uvloop
-import asyncio
 
 app = fastapi.FastAPI(
     debug=settings.DEBUG,
@@ -18,7 +18,7 @@ register_hospital_use_case = HospitalRegistrationUseCase(MongoRepo)
 
 uvloop.install()
 
-
+# TODO: add dependency injection using Depends, refactor use_cases
 @app.post(
     "/register-center",
     status_code=status.HTTP_201_CREATED,
