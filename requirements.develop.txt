@@ -1,3 +1,4 @@
 black[d]
 pre-commit
 pylint
+pytest==6.2.5

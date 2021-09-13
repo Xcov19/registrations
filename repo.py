@@ -39,13 +39,13 @@ class MotorClient(Singleton):
 # TODO: populate logic with motor
 class MongoRepo(IRepo):
     @classmethod
-    async def init(cls):
+    def init(cls):
         """Initializes singleton motor client."""
         return MotorClient().motor_client()
 
     @classmethod
-    async def get_collection(cls, collections: List[Union[str, beanie.Document]]):
-        motor_client = await cls.init()
+    async def get_collection(cls, collections: List[Union[str, Type[beanie.Document]]]):
+        motor_client = cls.init()
         # Init beanie
         await beanie.init_beanie(
             database=motor_client.db_name, document_models=collections
