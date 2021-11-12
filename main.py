@@ -18,7 +18,7 @@ if __name__ == "__main__":
     from hypercorn.config import Config
 
     config = Config()
-    config.bind = "0.0.0.0:8080"
     # TODO: fill up config.toml
-    # config.from_toml("config.toml")
+    config.from_toml("config.toml")
+    config.bind = "0.0.0.0:8080"
     asyncio.run(serve(app, config))
