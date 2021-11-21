@@ -1,15 +1,6 @@
 version: "3"
 
 services:
-#  mongodb:
-#    image: mongo
-#    container_name: mongodb
-#    ports:
-#      - 27017:27017
-#    volumes:
-#      - /opt/mongo/data:/data/db
-#    restart: always
-
   sql_db:
     image: postgres
     volumes:
@@ -24,7 +15,7 @@ services:
       - POSTGRES_PORT=5432
 
   backend:
-    entrypoint: hypercorn -k uvloop --bind="localhost:8081" --debug --reload main
+    entrypoint: hypercorn -k uvloop --bind="0.0.0.0:8080" --debug --reload main
     restart: always
     container_name: backend
     build:
