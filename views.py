@@ -1,34 +1,37 @@
-from typing import Callable
-
 import fastapi
-from fastapi import Depends
 
+import models
 import repo
-from models import HealthCareData
-from repo import MongoRepo
+from entities import HealthCareEntity
+from entities import HealthCareRecordEntity
+from errors import DuplicateEntryException
+from errors import InvalidEntryException
 from use_case import HospitalRegistrationUseCase
 from use_case import register_use_case
 
-router = fastapi.APIRouter(on_startup=[repo.start_psql_client])
+
 register_hospital_use_case = register_use_case(
     HospitalRegistrationUseCase, repo.PsqlRepo
 )
 
 
-# TODO: add dependency injection using Depends, refactor use_cases
+async def on_startup():
+    await repo.start_psql_client(models.models)
+
+
+router = fastapi.APIRouter(on_startup=[on_startup])
+
+
 @router.post(
     "/register-center",
     status_code=fastapi.status.HTTP_201_CREATED,
+    response_model=HealthCareRecordEntity,
 )
 async def register_hospital_center(
-    healthcare_data: HealthCareData,
+    healthcare_data: HealthCareEntity,
 ):
     if not register_hospital_use_case.valid_new_entry(healthcare_data):
-        return fastapi.exceptions.HTTPException(
-            fastapi.status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Not a valid entry."
-        )
-    if not register_hospital_use_case.duplicate_exists(healthcare_data):
-        return fastapi.exceptions.HTTPException(
-            fastapi.status.HTTP_409_CONFLICT, detail="Entry already exists."
-        )
+        raise InvalidEntryException(detail="Not a valid entry.")
+    if register_hospital_use_case.duplicate_exists(healthcare_data):
+        raise DuplicateEntryException(detail=f"Entry already exists.")
     return register_hospital_use_case.create_entry(healthcare_data)

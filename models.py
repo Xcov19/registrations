@@ -20,9 +20,11 @@ class ClericalRegisteredData(orm.Model):
     tablename = "clerical_registered_data"
     fields = {
         "id": orm.Integer(primary_key=True, allow_null=False),
-        "name": orm.String(allow_null=False, allow_blank=False),
-        "title": orm.String(allow_null=False, allow_blank=False),
-        "contact_number": orm.String(allow_null=False, allow_blank=False),
+        "name": orm.String(allow_null=False, allow_blank=False, max_length=128),
+        "title": orm.String(allow_null=False, allow_blank=False, max_length=128),
+        "contact_number": orm.String(
+            allow_null=False, allow_blank=False, max_length=14
+        ),
     }
 
 
@@ -31,11 +33,11 @@ class LocationData(orm.Model):
     tablename = "location"
     fields = {
         "id": orm.Integer(primary_key=True, allow_null=False),
-        "lat": orm.Decimal(decimal_places=5, max_digits=4),
-        "lng": orm.Decimal(decimal_places=5, max_digits=4),
-        "city": orm.String(allow_null=False, allow_blank=False),
-        "state": orm.String(allow_null=False, allow_blank=False),
-        "country": orm.String(allow_null=False, allow_blank=False),
+        "lat": orm.Decimal(decimal_places=5, max_digits=5),
+        "lng": orm.Decimal(decimal_places=5, max_digits=5),
+        "city": orm.String(allow_null=False, allow_blank=False, max_length=50),
+        "state": orm.String(allow_null=False, allow_blank=False, max_length=50),
+        "country": orm.String(allow_null=False, allow_blank=False, max_length=3),
     }
 
 
@@ -44,8 +46,10 @@ class HealthCare(orm.Model):
     tablename = "healthcare_registration"
     fields = {
         "id": orm.Integer(primary_key=True, allow_null=False),
-        "name": orm.String(allow_null=False, allow_blank=False),
-        "registration_number": orm.String(allow_null=False, allow_blank=False),
+        "name": orm.String(allow_null=False, allow_blank=False, max_length=200),
+        "registration_number": orm.String(
+            allow_null=False, allow_blank=False, max_length=200
+        ),
         "incorporation_date": orm.Date(allow_null=False, allow_blank=False),
         "registering_user_info": orm.ForeignKey(ClericalRegisteredData),
         "location": orm.ForeignKey(LocationData),
@@ -54,7 +58,10 @@ class HealthCare(orm.Model):
         "ventilator_beds": orm.Integer(allow_null=True),
         "non_ventilator_beds": orm.Integer(allow_null=True),
         "num_departments": orm.Integer(allow_null=True),
-        "hospital_contact_number": orm.String(allow_null=False, allow_blank=False),
+        "hospital_contact_number": orm.String(
+            allow_null=False, allow_blank=False, max_length=14
+        ),
+        "is_verified": orm.Boolean(allow_null=False, default=False),
     }
 
 
@@ -70,6 +77,7 @@ class HealthCareData(beanie.Document):
     non_ventilator_beds: Optional[int]
     num_departments: int
     hospital_contact_number: str
+    is_verified: bool
 
     class Collection:
         name = "health_centers"

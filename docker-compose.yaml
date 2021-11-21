@@ -1,28 +1,30 @@
 version: "3"
 
 services:
-  mongodb:
-    image: mongo
-    container_name: mongodb
-    ports:
-      - 27017:27017
-    volumes:
-      - /opt/mongo/data:/data/db
-    restart: always
+#  mongodb:
+#    image: mongo
+#    container_name: mongodb
+#    ports:
+#      - 27017:27017
+#    volumes:
+#      - /opt/mongo/data:/data/db
+#    restart: always
 
   sql_db:
     image: postgres
     volumes:
       - ./data/db:/var/lib/postgresql/data
+    ports:
+      - "8901:5432"
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-    ports:
-      - "8901:5432"
+      - POSTGRES_HOST=172.18.0.2
+      - POSTGRES_PORT=5432
 
   backend:
-    entrypoint: hypercorn -k uvloop --bind="0.0.0.0:8081" --debug --reload main
+    entrypoint: hypercorn -k uvloop --bind="localhost:8081" --debug --reload main
     restart: always
     container_name: backend
     build:
@@ -32,11 +34,14 @@ services:
       - "8081:8080"
     hostname: backend
     links:
-      - mongodb
       - sql_db
     depends_on:
-      - mongodb
       - sql_db
-
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=172.18.0.2
+      - POSTGRES_PORT=5432
     volumes:
       - ./storage:/storage
