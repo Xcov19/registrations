@@ -36,12 +36,10 @@ class ClericalRegisteredRecord(RegisteringUser):
         orm_mode = True
 
 
-class HealthCareEntity(pyd.BaseModel):
+class HospitalOnlyEntity(pyd.BaseModel):
     name: str
     registration_number: str
     incorporation_date: datetime.date
-    registering_user_info: RegisteringUser
-    location: Location
     icu_beds: int = None
     non_icu_beds: int = None
     ventilator_beds: int = None
@@ -51,7 +49,14 @@ class HealthCareEntity(pyd.BaseModel):
     is_verified: bool = Field(default=False)
 
 
-class HealthCareRecordEntity(HealthCareEntity):
+class HealthCareEntity(HospitalOnlyEntity):
+    """Read only healthcare entity."""
+
+    registering_user_info: RegisteringUser
+    location: Location
+
+
+class HealthCareRecordEntity(HospitalOnlyEntity):
     """Orm mappable healthcare data that fetches from database."""
 
     id: int
