@@ -7,7 +7,7 @@ class DuplicateEntryException(HTTPException):
 
     def __init__(self, *args, **kwargs):
         self.status_code = status.HTTP_409_CONFLICT
-        super().__init__(*args, **kwargs)
+        super().__init__(self.status_code, *args, **kwargs)
 
 
 class InvalidEntryException(HTTPException):
@@ -15,4 +15,4 @@ class InvalidEntryException(HTTPException):
 
     def __init__(self, *args, **kwargs):
         self.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-        super().__init__(*args, **kwargs)
+        super().__init__(self.status_code, *args, **kwargs)

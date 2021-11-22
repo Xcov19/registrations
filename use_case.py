@@ -19,6 +19,15 @@ class HospitalRegistrationUseCase:
         self.__repo = repo
 
     async def valid_new_entry(self, healthcare_data: HealthCareEntity) -> bool:
+        """
+        TODO: Builds tools where we can fire off async processes to check for:
+            1. valid hospital phone.
+            2. clerical verification by phone.
+            3. correct hospital incorporation info.
+        :param healthcare_data: HealthCareEntity, health care data.
+        :return: bool, whether data is valid.
+        """
+
         return await self.__repo.validate_entry(**healthcare_data.dict())
 
     async def duplicate_exists(self, healthcare_data: HealthCareEntity) -> bool:

@@ -52,6 +52,18 @@ class SqlRepoInterface(RepoInterface, Protocol):
         """Returns healthcare sql table."""
         ...
 
+    @classmethod
+    @abc.abstractmethod
+    def get_location_table(cls, **tbl_mapping):
+        """Returns location sql table."""
+        ...
+
+    @classmethod
+    @abc.abstractmethod
+    def get_clerical_table(cls, **tbl_mapping):
+        """Returns clerical user sql table."""
+        ...
+
 
 class MongoRepoInterface(RepoInterface, Protocol):
     """Mongo interface for mongo repo drivers."""

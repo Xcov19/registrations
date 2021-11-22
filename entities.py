@@ -55,6 +55,8 @@ class HealthCareRecordEntity(HealthCareEntity):
     """Orm mappable healthcare data that fetches from database."""
 
     id: int
+    registering_user_info: ClericalRegisteredRecord
+    location: LocationRecord
 
     class Config:
         orm_mode = True

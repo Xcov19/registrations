@@ -51,8 +51,10 @@ class HealthCare(orm.Model):
             allow_null=False, allow_blank=False, max_length=200
         ),
         "incorporation_date": orm.Date(allow_null=False, allow_blank=False),
-        "registering_user_info": orm.ForeignKey(ClericalRegisteredData),
-        "location": orm.ForeignKey(LocationData),
+        "registering_user_info": orm.ForeignKey(
+            ClericalRegisteredData, on_delete=orm.CASCADE
+        ),
+        "location": orm.ForeignKey(LocationData, on_delete=orm.CASCADE),
         "icu_beds": orm.Integer(allow_null=True),
         "non_icu_beds": orm.Integer(allow_null=True),
         "ventilator_beds": orm.Integer(allow_null=True),

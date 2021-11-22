@@ -58,25 +58,38 @@ class PsqlClient(Borg):
     async def create_async_model(self):
         import asyncio
 
-        # Probably a fix.
-        # See: https://github.com/encode/orm/issues/114#issuecomment-974735799
         url = self.model._get_database_url()
-        await asyncio.gather(asyncio.create_task(self.model._create_all(url)))
+        tasks = [
+            # See: https://github.com/encode/databases/issues/96#issuecomment-619425993
+            asyncio.create_task(self.model.database.connect()),
+            # Probably a fix.
+            # See: https://github.com/encode/orm/issues/114#issuecomment-974735799
+            asyncio.create_task(self.model._create_all(url)),
+        ]
+        await asyncio.gather(*tasks)
+
+    async def drop_async_model(self):
+        url = self.model._get_database_url()
+        await self.model._drop_all(url)
+        await self.model.database.disconnect()
 
 
 async def start_psql_client(model_registry: orm.ModelRegistry):
     await PsqlClient(model_registry).create_async_model()
 
 
+async def drop_psql_client(model_registry: orm.ModelRegistry):
+    await PsqlClient(model_registry).drop_async_model()
+
+
 def get_postgres_collections(
-    collections: List[str], models_registry: orm.ModelRegistry
+    models_registry: orm.ModelRegistry,
 ) -> Dict[str, orm.Model]:
     """Returns a dictionary of collection name with orm object."""
-    tables: Dict[str, sa.Table] = models_registry.metadata.tables
+    tables: Dict[str, orm.ModelRegistry] = models_registry.models
     return {
-        tbl_name: models_registry.models.get(tbl_name)
-        for tbl_name in collections
-        if tbl_name in tables
+        orm_registry_model.tablename: orm_registry_model
+        for orm_registry_model in tables.values()
     }
 
 
@@ -94,11 +107,6 @@ class PsqlRepo(SqlRepoInterface):
     )
     # Returns table name with their orm models.
     collection_mapping = get_postgres_collections(
-        [
-            healthcare_tbl_name,
-            location_tbl_name,
-            clerical_tbl_name,
-        ],
         models_registry,
     )
 
@@ -108,21 +116,56 @@ class PsqlRepo(SqlRepoInterface):
         return tbl_mapping[cls.healthcare_tbl_name]
 
     @classmethod
+    def get_location_table(cls, **tbl_mapping):
+        """Returns location sql table."""
+        return tbl_mapping[cls.location_tbl_name]
+
+    @classmethod
+    def get_clerical_table(cls, **tbl_mapping):
+        """Returns clerical user sql table."""
+        return tbl_mapping[cls.clerical_tbl_name]
+
+    @classmethod
     async def validate_entry(cls, **kwargs) -> bool:
         """Validates if record doesn't exist."""
+        kwargs.pop("location", None)
+        kwargs.pop("registering_user_info", None)
         orm_model = cls.get_healthcare_table(**cls.collection_mapping)
+        await cls.models_registry.database.connect()
         return bool(orm_model and not await orm_model.objects.first(**kwargs))
 
     @classmethod
     async def is_duplicate(cls, **kwargs) -> bool:
         """Checks if it is a duplicate entry."""
+        kwargs.pop("location", None)
+        kwargs.pop("registering_user_info", None)
         orm_model = cls.get_healthcare_table(**cls.collection_mapping)
+        await cls.models_registry.database.connect()
         return bool(orm_model and await orm_model.objects.first(**kwargs))
 
     @classmethod
     async def create_object(cls, **kwargs) -> HealthCareRecordEntity:
-        orm_model = cls.get_healthcare_table(**cls.collection_mapping)
-        new_record = orm_model.objects.create(**kwargs)
+        location = kwargs.pop("location")
+        registering_user_info = kwargs.pop("registering_user_info")
+        orm_healthcare = cls.get_healthcare_table(**cls.collection_mapping)
+        orm_location = cls.get_location_table(**cls.collection_mapping)
+        orm_clerical = cls.get_clerical_table(**cls.collection_mapping)
+        await cls.models_registry.database.connect()
+        location_record = await orm_location.objects.create(**location)
+        clerical_record = await orm_clerical.objects.create(**registering_user_info)
+        new_record = await orm_healthcare.objects.create(
+            **{
+                **kwargs,
+                "location": location_record,
+                "registering_user_info": clerical_record,
+            }
+        )
+        new_record = await orm_healthcare.objects.select_related(
+            [
+                "registering_user_info",
+                "location",
+            ]
+        ).get(id=new_record.id)
         return HealthCareRecordEntity.from_orm(new_record)
 
 
