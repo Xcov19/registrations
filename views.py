@@ -14,12 +14,12 @@ register_hospital_use_case = register_use_case(
 
 
 async def on_startup():
-    await repo.start_psql_client(models.models)
+    await models.start_psql_client(models.models)
 
 
 async def on_shutdown():
     if settings.DEBUG:
-        await repo.drop_psql_client(models.models)
+        await models.drop_psql_client(models.models)
 
 
 router = fastapi.APIRouter(
