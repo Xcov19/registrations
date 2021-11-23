@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 import pydantic as pyd
 from pydantic import Field
@@ -40,11 +41,11 @@ class HospitalOnlyEntity(pyd.BaseModel):
     name: str
     registration_number: str
     incorporation_date: datetime.date
-    icu_beds: int = None
-    non_icu_beds: int = None
-    ventilator_beds: int = None
-    non_ventilator_beds: int = None
-    num_departments: int = None
+    icu_beds: Optional[int]
+    non_icu_beds: Optional[int]
+    ventilator_beds: Optional[int]
+    non_ventilator_beds: Optional[int]
+    num_departments: Optional[int]
     hospital_contact_number: str
     is_verified: bool = Field(default=False)
 
