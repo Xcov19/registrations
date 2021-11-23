@@ -1,9 +1,11 @@
 import datetime
+from typing import Optional
 
-from pydantic import BaseModel
+import pydantic as pyd
+from pydantic import Field
 
 
-class Location(BaseModel):
+class Location(pyd.BaseModel):
     lat: float
     lng: float
     city: str
@@ -11,25 +13,56 @@ class Location(BaseModel):
     country: str
 
 
-class RegisteringUser(BaseModel):
+class LocationRecord(Location):
+    """Orm mappable Location record that fetches from database."""
+
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class RegisteringUser(pyd.BaseModel):
     name: str
     title: str
     contact_number: str
 
 
-class HealthCareData(BaseModel):
+class ClericalRegisteredRecord(RegisteringUser):
+    """Orm mappable Clerical Registration record that fetches from database."""
+
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class HospitalOnlyEntity(pyd.BaseModel):
     name: str
     registration_number: str
-    incorporation_date: datetime.datetime
+    incorporation_date: datetime.date
+    icu_beds: Optional[int]
+    non_icu_beds: Optional[int]
+    ventilator_beds: Optional[int]
+    non_ventilator_beds: Optional[int]
+    num_departments: Optional[int]
+    hospital_contact_number: str
+    is_verified: bool = Field(default=False)
+
+
+class HealthCareEntity(HospitalOnlyEntity):
+    """Read only healthcare entity."""
+
     registering_user_info: RegisteringUser
     location: Location
-    icu_beds: int
-    non_icu_beds: int
-    ventilator_beds: int
-    non_ventilator_beds: int
-    num_departments: int
-    hospital_contact_number: str
 
 
-class NewHealthCareData(HealthCareData):
-    id: str
+class HealthCareRecordEntity(HospitalOnlyEntity):
+    """Orm mappable healthcare data that fetches from database."""
+
+    id: int
+    registering_user_info: ClericalRegisteredRecord
+    location: LocationRecord
+
+    class Config:
+        orm_mode = True

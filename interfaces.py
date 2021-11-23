@@ -1,38 +1,77 @@
+"""Implements interfaces to various layered-components.
+See motivation behind interfaces and brief guide:
+https://www.godaddy.com/engineering/2018/12/20/python-metaclasses/
+"""
 import abc
-import functools
-from typing import Union
+from typing import Dict
+from typing import Protocol
+from typing import Type
 
-from entities import NewHealthCareData
+import beanie
+import orm
+
+from entities import HealthCareRecordEntity
+from models import HealthCareData
 
 
-class IRepo(metaclass=abc.ABCMeta):
-
-    impl_methods = (
-        "validate_entry",
-        "is_duplicate",
-        "create_object",
-    )
-
-    @staticmethod
-    def get_impl(subclass: object, method_name: str) -> bool:
-        return hasattr(subclass, method_name)
-
-    @classmethod
-    def __subclasshook__(cls, subclass):
-        impl_fn = functools.partial(cls.get_impl, subclass)
-        return all(map(impl_fn, cls.impl_methods))
+class RepoInterface(Protocol):
+    """Generic repository interface."""
 
     @classmethod
     @abc.abstractmethod
-    def validate_entry(cls, **kwargs) -> bool:
-        raise NotImplementedError
+    async def validate_entry(cls, **kwargs) -> bool:
+        """Validates whether given object is valid for repo processing."""
+        ...
 
     @classmethod
     @abc.abstractmethod
-    def is_duplicate(cls, **kwargs) -> bool:
-        raise NotImplementedError
+    async def is_duplicate(cls, **kwargs) -> bool:
+        """Checks if it's a duplicate object."""
+        ...
 
     @classmethod
     @abc.abstractmethod
-    async def create_object(cls, **kwargs) -> NewHealthCareData:
-        raise NotImplementedError
+    async def create_object(cls, **kwargs) -> HealthCareRecordEntity:
+        """Creates a new entry from the given object."""
+        ...
+
+
+class SqlRepoInterface(RepoInterface, Protocol):
+    """Sql DB interface for rdbms drivers."""
+
+    healthcare_tbl_name: str
+    location_tbl_name: str
+    clerical_tbl_name: str
+    models_registry: orm.ModelRegistry
+    required_registration_fields: tuple
+    collection_mapping: dict
+
+    @classmethod
+    @abc.abstractmethod
+    def get_healthcare_table(cls, **tbl_mapping):
+        """Returns healthcare sql table."""
+        ...
+
+    @classmethod
+    @abc.abstractmethod
+    def get_location_table(cls, **tbl_mapping):
+        """Returns location sql table."""
+        ...
+
+    @classmethod
+    @abc.abstractmethod
+    def get_clerical_table(cls, **tbl_mapping):
+        """Returns clerical user sql table."""
+        ...
+
+
+class MongoRepoInterface(RepoInterface, Protocol):
+    """Mongo interface for mongo repo drivers."""
+
+    healthcare_collection: Type[beanie.Document]
+
+    @classmethod
+    @abc.abstractmethod
+    def get_healthcare_collection(cls) -> Type[HealthCareData]:
+        """Returns healthcare sql table."""
+        ...
