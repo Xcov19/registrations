@@ -26,6 +26,7 @@ async def on_shutdown():
 router = fastapi.APIRouter(
     on_startup=[on_startup],
     on_shutdown=[on_shutdown],
+    tags=["covid hospitals", "user", "sso", "feedback", "survey-forms"],
 )
 
 
