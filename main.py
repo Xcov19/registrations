@@ -6,8 +6,9 @@ import uvloop
 import settings
 import views
 
+
 app = fastapi.FastAPI(
-    debug=settings.DEBUG,
+    debug=settings.ENV_CLASS.debug,
 )
 app.include_router(views.router)
 
