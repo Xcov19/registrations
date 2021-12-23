@@ -54,5 +54,5 @@ class HospitalRegistrationUseCase:
         if not await self.valid_new_entry(test_healthcare_data):
             raise InvalidEntryException(detail="Not a valid entry.")
         if await self.duplicate_exists(test_healthcare_data):
-            raise DuplicateEntryException(detail=f"Entry already exists.")
+            raise DuplicateEntryException(detail='Entry already exists.')
         return await self.create_entry(healthcare_data)
