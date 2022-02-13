@@ -1,12 +1,5 @@
 import os
 
-import ujson
-
-SETTINGS_JSON = "settings.json"
-dir_name = os.path.dirname(os.path.abspath(__file__))
-SETTINGS_PATH = os.path.abspath(os.path.join(dir_name, SETTINGS_JSON))
-
-
 settings_data = {
     "POSTGRES_USER": os.getenv("POSTGRES_USER", "postgres"),
     "POSTGRES_DB": os.getenv("POSTGRES_DB", "postgres"),
@@ -15,10 +8,6 @@ settings_data = {
     "POSTGRES_PORT": os.getenv("POSTGRES_PORT", 5432),
 }
 
-with open(SETTINGS_PATH, "r") as settings_file:
-    settings_data = {**ujson.load(settings_file), **settings_data}
-
-DEBUG = settings_data.get("DEBUG", True)
 
 PSQL_CONN = (
     # Will throw:
@@ -30,7 +19,29 @@ PSQL_CONN = (
     f"""{settings_data['POSTGRES_PORT']}/"""
     f"""{settings_data['POSTGRES_DB']}"""
 )
-DB_CONNECTION = {
-    "mongo": settings_data.get("MONGO_CONNECTION", "mongodb://localhost:27017"),
-    "postgres": settings_data.get("PSQL_CONNECTION", PSQL_CONN),
+
+
+class StageEnv:
+    @classmethod
+    def env(cls):
+        return cls.__name__.lower()
+
+
+class Production(StageEnv):
+    debug = False
+    mongo_uri = settings_data.get("MONGO_CONNECTION")
+    postgres_uri = settings_data.get("PSQL_CONNECTION")
+
+
+class Test(StageEnv):
+    debug = True
+    mongo_uri = settings_data.get("MONGO_CONNECTION", "mongodb://localhost:27017")
+    postgres_uri = settings_data.get("PSQL_CONNECTION", PSQL_CONN)
+
+
+ENV_CONFIG_DICT = {
+    Test.env(): Test,
+    Production.env(): Production,
 }
+
+ENV_CLASS = ENV_CONFIG_DICT[os.getenv("ENV")]

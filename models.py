@@ -13,7 +13,7 @@ import settings
 from entities import Location
 from entities import RegisteringUser
 
-database = databases.Database(settings.DB_CONNECTION.get("postgres"))
+database = databases.Database(settings.ENV_CLASS.postgres_uri)
 models = orm.ModelRegistry(database=database)
 
 

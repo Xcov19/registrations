@@ -1,17 +1,17 @@
 default_language_version:
-    python: python3.8
+    python: python3.10.1
 repos:
   - repo: https://github.com/psf/black
-    rev: 21.8b0
+    rev: 22.1.0
     hooks:
       - id: black
         exclude: venv
   - repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.6.0
+    rev: v2.7.1
     hooks:
       - id: reorder-python-imports
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.1.0
     hooks:
     - id: check-docstring-first
     - id: check-json

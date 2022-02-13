@@ -15,11 +15,11 @@ import orm
 from motor import motor_asyncio
 
 import models
+import settings
 from entities import HealthCareRecordEntity
 from interfaces import MongoRepoInterface
 from interfaces import SqlRepoInterface
 from models import HealthCareData
-from settings import DB_CONNECTION
 
 
 class PsqlRepo(SqlRepoInterface):
@@ -106,7 +106,9 @@ class MotorClient(models.Borg):
     def __new__(cls, *args, **kwargs):
         if not cls.__instance:
             cls.__instance = super().__new__(cls)
-            cls.__instance.client = motor_asyncio.AsyncIOMotorClient(DB_CONNECTION)
+            cls.__instance.client = motor_asyncio.AsyncIOMotorClient(
+                settings.ENV_CLASS.mongo_uri
+            )
         return cls.__instance
 
     @functools.cached_property

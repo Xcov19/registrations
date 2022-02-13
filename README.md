@@ -23,6 +23,26 @@ https://gitpod.io/#https://github.com/Xcov19/registrations
 ```
 
 ### Developing
+Make sure to install `pyenv` locally and do:
+```bash
+sudo apt install -y python3-testresources sqlite3 libsqlite3-dev
+sudo apt install sqlite3
+
+PYTHON_CONFIGURE_OPTS="--enable-loadable-sqlite-extensions --enable-optimizations" LDFLAGS="-L/usr/local/opt/sqlite/lib" CPPFLAGS="-I/usr/local/opt/sqlite/include" pyenv install 3.10.1
+```
+
+and then setup your poetry package in a separate virtual environment.
+For instance, this is the poetry package install in Ubuntu:
+1. Setup poetry like:```python3 -m pip install --user --no-cache-dir poetry```
+2. Create a `pyenv virtualenv 3.10.1 <YOUR VENV NAME>`
+3. `pyenv activate <YOUR VENV NAME>`
+4. Set your venv and install packages like:
+```bash
+poetry env use /home/<YOUR USERNAME>/.pyenv/versions/3.10.1/bin/python3 && poetry install
+```
+You would need to do something similar in your OS platform specific environment.
+Refer to poetry documentation.
+
 If you are locally developing & debugging you could do:
 ```bash
 python3 main.py
@@ -30,6 +50,9 @@ python3 main.py
 
 Then hit:
 `http://0.0.0.0:8080/docs`
+
+to view the existing openAPI docs.
+
 
 ### Pending Todos:
 - [x] dockerize
