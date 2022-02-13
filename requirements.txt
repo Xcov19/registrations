@@ -3,7 +3,7 @@ hypercorn==0.12.0
 gunicorn==20.1.0
 beanie==1.7.0
 motor==2.5.1
-ujson==4.2.0
+ujson==5.1.0
 
 uvloop~=0.16.0
 pymongo~=3.12.1
