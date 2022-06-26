@@ -44,4 +44,4 @@ ENV_CONFIG_DICT = {
     Production.env(): Production,
 }
 
-ENV_CLASS = ENV_CONFIG_DICT[os.getenv("ENV")]
+ENV_CLASS = ENV_CONFIG_DICT[os.getenv("ENV", "test")]
