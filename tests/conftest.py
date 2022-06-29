@@ -10,6 +10,23 @@ from registrations.domain.hospital.registration import VerificationStatus
 from registrations.domain.location.location import Address
 
 
+# ************************************************* #
+# Setup pytest anyio fixture.
+# The anyio_backend fixture determines the backends
+# and their options that tests and fixtures are run with.
+# The AnyIO pytest plugin comes with a function scoped
+# fixture with this name which runs everything on all supported backends.
+# ************************************************* #
+@pytest.fixture(
+    scope="session",
+    params=[
+        pytest.param(("asyncio", {"use_uvloop": True}), id="asyncio+uvloop"),
+    ],
+)
+def anyio_backend(request):
+    return request.param
+
+
 @pytest.fixture(scope="module")
 def generate_uuid1():
     random.seed(13)

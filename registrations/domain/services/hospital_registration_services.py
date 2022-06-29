@@ -3,7 +3,6 @@ from __future__ import annotations
 import abc
 from typing import Protocol
 from typing import Type
-from typing import TypeVar
 from typing import Union
 
 import pydantic
@@ -19,7 +18,7 @@ from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 # Contains interface(ports) definition and implementation.
 # ************************************************* #
 
-IUOW = TypeVar("IUOW", bound=InterfaceHospitalUOW)
+IUOW = InterfaceHospitalUOW
 
 HospitalEntityType = Union[UnclaimedHospital, UnverifiedRegisteredHospital]
 

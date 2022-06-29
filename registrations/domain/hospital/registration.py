@@ -34,13 +34,11 @@ class VerificationStatus(enum_utils.EnumWithItems):
 
 # Value Object
 class PhoneNumber(pydantic.BaseModel, allow_mutation=False, validate_assignment=True):
-    number: pydantic.PositiveInt
+    number: str
 
     @pydantic.validator("number", pre=True)
     @classmethod
-    def _validate_number(
-        cls, phone_number: pydantic.PositiveInt
-    ) -> pydantic.PositiveInt:
+    def _validate_number(cls, phone_number: str) -> str:
         phonenum_obj: phonenumbers.PhoneNumber = phonenumbers.parse(phone_number)
         if not (
             phonenumbers.is_possible_number(phonenum_obj)
@@ -60,16 +58,21 @@ class ContactPerson(pydantic.BaseModel, allow_mutation=False, validate_assignmen
 
     @pydantic.validator("email", pre=True)
     @classmethod
-    def _validate_email(cls, email: pydantic.EmailStr) -> pydantic.EmailStr:
-        if not email_validator.validate_email(email):
+    def _validate_email(cls, email: Optional[pydantic.EmailStr]) -> pydantic.EmailStr:
+        if email and not email_validator.validate_email(email):
             raise EmailNotValidError
         return email
 
 
 class MissingRegistrationFieldError(pydantic.ValidationError):
-    def __init__(self, error_msg: str, model: Type[pydantic.BaseModel]):
+    def __init__(
+        self,
+        error_msg: str,
+        model: Type[pydantic.BaseModel],
+        exc_tb: Optional[str] = None,
+    ):
         error_wrapper = pydantic.error_wrappers.ErrorWrapper(
-            Exception(error_msg), error_msg
+            Exception(error_msg), exc_tb or error_msg
         )
         super().__init__(errors=[error_wrapper], model=model)
 
