@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import uuid
 from typing import Optional
-from typing import overload
-from typing import Protocol
 from typing import Type
 from typing import TypeVar
 from typing import Union
@@ -100,9 +98,7 @@ class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
     phone_number: PhoneNumber
 
     @classmethod
-    def build_factory(
-        cls, **kwargs
-    ) -> Union[UnclaimedHospital, UnverifiedRegisteredHospital]:
+    def build_factory(cls, **kwargs) -> HospitalEntityType:
         cls._validate_attributes(**kwargs)
         return (
             cls._build_unclaimed_hospital_factory(**kwargs)
@@ -197,3 +193,4 @@ class UnclaimedHospital(HospitalEntryAggregate):
 UnionRegisteredTypes = TypeVar(
     "UnionRegisteredTypes", UnverifiedRegisteredHospital, UnclaimedHospital
 )
+HospitalEntityType = Union[UnclaimedHospital, UnverifiedRegisteredHospital]

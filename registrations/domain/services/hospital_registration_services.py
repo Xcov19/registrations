@@ -4,10 +4,10 @@ import abc
 from typing import Protocol
 from typing import Type
 from typing import TypeVar
-from typing import Union
 
 import pydantic
 
+from registrations.domain.hospital.registration import HospitalEntityType
 from registrations.domain.hospital.registration import HospitalEntryAggregate
 from registrations.domain.hospital.registration import UnclaimedHospital
 from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
@@ -28,8 +28,6 @@ from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 # because it expects a concrete class type.
 # ************************************************* #
 IUOW = TypeVar("IUOW", bound=Type[InterfaceHospitalUOW])
-
-HospitalEntityType = Union[UnclaimedHospital, UnverifiedRegisteredHospital]
 
 
 class InterfaceEmailVerificationService(Protocol):
@@ -77,7 +75,7 @@ class RegisterHospitalService:
 
     @classmethod
     async def register_hospital(
-        cls, hospital_uow_async: Type[IUOW], hospital_entry: HospitalEntityType
+        cls, hospital_uow_async: IUOW, hospital_entry: HospitalEntityType
     ):
         if isinstance(hospital_entry, UnclaimedHospital):
             await cls.register_unclaimed_hospital(hospital_uow_async, hospital_entry)
@@ -87,7 +85,7 @@ class RegisterHospitalService:
     @classmethod
     async def register_unverified_hospital(
         cls,
-        hospital_uow_async: Type[IUOW],
+        hospital_uow_async: IUOW,
         unverified_hospital: UnverifiedRegisteredHospital,
     ):
         """Register hospital manually submitted but unverified."""
@@ -98,7 +96,7 @@ class RegisterHospitalService:
 
     @classmethod
     async def register_unclaimed_hospital(
-        cls, hospital_uow_async: Type[IUOW], unclaimed_hospital: UnclaimedHospital
+        cls, hospital_uow_async: IUOW, unclaimed_hospital: UnclaimedHospital
     ):
         """Register  imported hospital but unclaimed and unverified.
 

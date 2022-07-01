@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import enum
+from typing import Literal
 from typing import Protocol
 
 from registrations.domain.hospital.registration import UnclaimedHospital
@@ -39,11 +40,11 @@ class InterfaceHospitalUOW(Protocol):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def commit(self) -> UOWSessionFlag.COMMITTED:
+    async def commit(self) -> Literal[UOWSessionFlag.COMMITTED]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def rollback(self) -> UOWSessionFlag.ROLLED_BACK:
+    async def rollback(self) -> Literal[UOWSessionFlag.ROLLED_BACK]:
         raise NotImplementedError
 
     @abc.abstractmethod
