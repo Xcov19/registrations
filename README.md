@@ -53,7 +53,10 @@ Then hit:
 
 to view the existing openAPI docs.
 
-
+To run tests, do:
+```bash
+poetry run pytest -m fast tests
+```
 ### Pending Todos:
 - [x] dockerize
 - [ ] postgresql plug
