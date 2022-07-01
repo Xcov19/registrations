@@ -27,7 +27,7 @@ from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 # We bound it to a Type of Interface
 # because it expects a concrete class type.
 # ************************************************* #
-IUOW = TypeVar("IUOW", bound=Type[InterfaceHospitalUOW])
+# IUOW = TypeVar("IUOW", bound=Type[InterfaceHospitalUOW])
 
 
 class InterfaceEmailVerificationService(Protocol):
@@ -75,7 +75,9 @@ class RegisterHospitalService:
 
     @classmethod
     async def register_hospital(
-        cls, hospital_uow_async: IUOW, hospital_entry: HospitalEntityType
+        cls,
+        hospital_uow_async: Type[InterfaceHospitalUOW],
+        hospital_entry: HospitalEntityType,
     ):
         if isinstance(hospital_entry, UnclaimedHospital):
             await cls.register_unclaimed_hospital(hospital_uow_async, hospital_entry)
@@ -85,7 +87,7 @@ class RegisterHospitalService:
     @classmethod
     async def register_unverified_hospital(
         cls,
-        hospital_uow_async: IUOW,
+        hospital_uow_async: Type[InterfaceHospitalUOW],
         unverified_hospital: UnverifiedRegisteredHospital,
     ):
         """Register hospital manually submitted but unverified."""
@@ -96,7 +98,9 @@ class RegisterHospitalService:
 
     @classmethod
     async def register_unclaimed_hospital(
-        cls, hospital_uow_async: IUOW, unclaimed_hospital: UnclaimedHospital
+        cls,
+        hospital_uow_async: Type[InterfaceHospitalUOW],
+        unclaimed_hospital: UnclaimedHospital,
     ):
         """Register  imported hospital but unclaimed and unverified.
 
