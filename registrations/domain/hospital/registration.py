@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import uuid
 from typing import Optional
+from typing import overload
+from typing import Protocol
 from typing import Type
+from typing import TypeVar
+from typing import Union
 
 import email_validator
 import phonenumbers
@@ -11,6 +15,20 @@ from email_validator import EmailNotValidError
 
 from registrations.domain.location.location import Address
 from registrations.utils import enum_utils
+
+
+class MissingRegistrationFieldError(pydantic.ValidationError):
+    def __init__(
+        self,
+        error_msg: str,
+        model: Type[pydantic.BaseModel],
+        exc_tb: Optional[str] = None,
+    ):
+        error_wrapper = pydantic.error_wrappers.ErrorWrapper(
+            Exception(error_msg), exc_tb or error_msg
+        )
+        super().__init__(errors=[error_wrapper], model=model)
+
 
 # ************************************************* #
 # These are the domain entities of registration..
@@ -44,7 +62,7 @@ class PhoneNumber(pydantic.BaseModel, allow_mutation=False, validate_assignment=
             phonenumbers.is_possible_number(phonenum_obj)
             and phonenumbers.is_valid_number(phonenum_obj)
         ):
-            raise pydantic.ValidationError
+            raise MissingRegistrationFieldError("Invalid number format.", cls)
         return phone_number
 
 
@@ -58,23 +76,12 @@ class ContactPerson(pydantic.BaseModel, allow_mutation=False, validate_assignmen
 
     @pydantic.validator("email", pre=True)
     @classmethod
-    def _validate_email(cls, email: Optional[pydantic.EmailStr]) -> pydantic.EmailStr:
+    def _validate_email(
+        cls, email: Optional[pydantic.EmailStr]
+    ) -> Optional[pydantic.EmailStr]:
         if email and not email_validator.validate_email(email):
             raise EmailNotValidError
         return email
-
-
-class MissingRegistrationFieldError(pydantic.ValidationError):
-    def __init__(
-        self,
-        error_msg: str,
-        model: Type[pydantic.BaseModel],
-        exc_tb: Optional[str] = None,
-    ):
-        error_wrapper = pydantic.error_wrappers.ErrorWrapper(
-            Exception(error_msg), exc_tb or error_msg
-        )
-        super().__init__(errors=[error_wrapper], model=model)
 
 
 class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
@@ -95,11 +102,13 @@ class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
     @classmethod
     def build_factory(
         cls, **kwargs
-    ) -> UnclaimedHospital | UnverifiedRegisteredHospital:
+    ) -> Union[UnclaimedHospital, UnverifiedRegisteredHospital]:
         cls._validate_attributes(**kwargs)
-        if cls._can_be_verified(**kwargs):
-            return cls._build_unclaimed_hospital_factory(**kwargs)
-        return cls._build_unverified_hospital_factory(**kwargs)
+        return (
+            cls._build_unclaimed_hospital_factory(**kwargs)
+            if cls._can_be_verified(**kwargs)
+            else cls._build_unverified_hospital_factory(**kwargs)
+        )
 
     @classmethod
     def register_unverified_hospital_factory(
@@ -168,13 +177,23 @@ class UnclaimedHospital(HospitalEntryAggregate):
     @classmethod
     def hospital_is_verified(cls, **kwargs) -> bool:
         return (
-            kwargs.get("verified_status")
+            bool(kwargs.get("verified_status"))
             and kwargs["verified_status"] == VerificationStatus.Verified
         )
 
     @classmethod
     def hospital_verification_pending(cls, **kwargs) -> bool:
         return (
-            kwargs.get("verified_status")
+            bool(kwargs.get("verified_status"))
             and kwargs["verified_status"] == VerificationStatus.Pending
         )
+
+
+# ************************************************* #
+# Avoid errors like:
+# Incompatible return type:
+# Expected UnverifiedRegisteredHospital but got typing.Union[UnclaimedHospital, UnverifiedRegisteredHospital].
+# ************************************************* #
+UnionRegisteredTypes = TypeVar(
+    "UnionRegisteredTypes", UnverifiedRegisteredHospital, UnclaimedHospital
+)

@@ -16,7 +16,7 @@ motor = "2.5.1"
 ujson = "<5.0.0"
 uvloop = "~=0.16.0"
 pymongo = "~=3.12.1"
-pydantic = "~=1.9.0"
+pydantic = "~=1.9.1"
 Cython = "^0.29.27"
 psycopg = {version = "~=3.0.4", extras = ["binary"]}
 psycopg2-binary = "2.9.2"
@@ -44,3 +44,14 @@ markers = [
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+# See: https://github.com/python/mypy/issues/5205
+# mypy global options:
+[tool.mypy]
+python_version = "3.9"
+plugins = ["pydantic.mypy"]
+
+# See: https://pydantic-docs.helpmanual.io/mypy_plugin/
+# mypy per-module options:
+[tool.pydantic-mypy]
+init_typed = true
