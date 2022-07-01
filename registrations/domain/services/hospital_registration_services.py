@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 from typing import Protocol
 from typing import Type
+from typing import TypeVar
 from typing import Union
 
 import pydantic
@@ -18,7 +19,15 @@ from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 # Contains interface(ports) definition and implementation.
 # ************************************************* #
 
-IUOW = InterfaceHospitalUOW
+# ************************************************* #
+# Abbreviate InterfaceHospitalUOW name by defining
+# as a type var.
+# See why it is done below the way it is:
+# https://github.com/python/mypy/issues/5374#issuecomment-406218346
+# We bound it to a Type of Interface
+# because it expects a concrete class type.
+# ************************************************* #
+IUOW = TypeVar("IUOW", bound=Type[InterfaceHospitalUOW])
 
 HospitalEntityType = Union[UnclaimedHospital, UnverifiedRegisteredHospital]
 

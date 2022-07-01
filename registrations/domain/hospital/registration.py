@@ -84,7 +84,9 @@ class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
     various entities.
     """
 
-    hospital_id: pydantic.UUID1 = pydantic.Field(uuid.uuid1, allow_mutation=False)
+    hospital_id: pydantic.UUID1 = pydantic.Field(
+        default_factory=uuid.uuid1, allow_mutation=False
+    )
     hospital_name: str
     ownership_type: Optional[OwnershipType]
     address: Address
@@ -98,6 +100,16 @@ class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
         if cls._can_be_verified(**kwargs):
             return cls._build_unclaimed_hospital_factory(**kwargs)
         return cls._build_unverified_hospital_factory(**kwargs)
+
+    @classmethod
+    def register_unverified_hospital_factory(
+        cls, **kwargs
+    ) -> UnverifiedRegisteredHospital:
+        return UnverifiedRegisteredHospital(**kwargs)
+
+    @classmethod
+    def register_unclaimed_hospital_factory(cls, **kwargs) -> UnclaimedHospital:
+        return UnclaimedHospital(**kwargs)
 
     @classmethod
     def _build_unclaimed_hospital_factory(cls, **kwargs) -> UnclaimedHospital:
@@ -128,26 +140,18 @@ class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
         return list(filter(lambda key: key not in kwarg_keys, field_attrs)) or None
 
     @classmethod
-    def register_unverified_hospital_factory(
-        cls, **kwargs
-    ) -> UnverifiedRegisteredHospital:
-        return UnverifiedRegisteredHospital(**kwargs)
-
-    @classmethod
-    def register_unclaimed_hospital_factory(cls, **kwargs) -> UnclaimedHospital:
-        return UnclaimedHospital(**kwargs)
-
-    @classmethod
     def _can_be_verified(
         cls,
         **kwargs,
     ) -> bool:
-        """Checks if the hospital entry be verified.
+        """Checks if the hospital entry can be verified.
 
         This can be used to start identification process and
         claim the hospital profile.
         """
-        return UnclaimedHospital.hospital_is_verified(**kwargs)
+        return UnclaimedHospital.hospital_is_verified(
+            **kwargs
+        ) or UnclaimedHospital.hospital_verification_pending(**kwargs)
 
 
 class UnverifiedRegisteredHospital(HospitalEntryAggregate):
@@ -166,4 +170,11 @@ class UnclaimedHospital(HospitalEntryAggregate):
         return (
             kwargs.get("verified_status")
             and kwargs["verified_status"] == VerificationStatus.Verified
+        )
+
+    @classmethod
+    def hospital_verification_pending(cls, **kwargs) -> bool:
+        return (
+            kwargs.get("verified_status")
+            and kwargs["verified_status"] == VerificationStatus.Pending
         )

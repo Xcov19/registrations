@@ -2,11 +2,7 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import Any
-from typing import Awaitable
-from typing import Coroutine
 from typing import Protocol
-from typing import Type
 
 from registrations.domain.hospital.registration import UnclaimedHospital
 from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
