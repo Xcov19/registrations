@@ -34,9 +34,12 @@ class HospitalRegistrationApplicationService:
     ) -> HospitalRegistrationEntry:
         """Registers a hospital."""
         builder_dict = {}
-        # We either get a verification status or
-        # an unverified manual registration entry.
-        # We cannot get both.
+        # **************************************************************** #
+        # We either get a verification status or an unverified
+        # manual registration entry. We cannot get both.
+        # Either attribute should be accessible via registration_entry
+        # as verified_status or key_contact.
+        # **************************************************************** #
         if registration_entry.verified_status:
             builder_dict["verified_status"] = VerificationStatus(
                 registration_entry.verified_status

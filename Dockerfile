@@ -10,14 +10,12 @@ RUN python3 -m pip install -U pip && python3 -m pip install --no-cache-dir poetr
 
 RUN rm -rf *
 
-WORKDIR /app
+#WORKDIR /app
 
-COPY *.py /app
+COPY registrations /app
 COPY LICENSE /app
-COPY README.md /app
-COPY settings.json /app
-COPY storage /app
 COPY *.toml /app
 COPY poetry.lock /app
 
+RUN export PYTHONPATH=$PYTHONPATH:/app/registrations/
 RUN poetry install -vvv
