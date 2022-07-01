@@ -19,16 +19,6 @@ from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 # Contains interface(ports) definition and implementation.
 # ************************************************* #
 
-# ************************************************* #
-# Abbreviate InterfaceHospitalUOW name by defining
-# as a type var.
-# See why it is done below the way it is:
-# https://github.com/python/mypy/issues/5374#issuecomment-406218346
-# We bound it to a Type of Interface
-# because it expects a concrete class type.
-# ************************************************* #
-# IUOW = TypeVar("IUOW", bound=Type[InterfaceHospitalUOW])
-
 
 class InterfaceEmailVerificationService(Protocol):
     """Infrastructure service interface for email verification."""
