@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "healthcare registrations for patients and staff"
 authors = ["codecakes <akulmat@protonmail.com>"]
 license = "GNU General Public License v3.0"
+include = ["registrations"]
 
 [tool.poetry.dependencies]
 python = "^3.9.7"
