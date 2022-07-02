@@ -3,7 +3,7 @@
 Microservice that allows CCCs (covid health care centers) to register themselves via a web form.
 This service provides an unverified dump of registered hospitals.
 
-Based on clean architecture design on fastapi designed to run as a microservice.
+Based on hexagonal architecture design on fastapi designed to run as a microservice.
 
 ## How to Run
 
@@ -28,7 +28,7 @@ Make sure to install `pyenv` locally and do:
 sudo apt install -y python3-testresources sqlite3 libsqlite3-dev
 sudo apt install sqlite3
 
-PYTHON_CONFIGURE_OPTS="--enable-loadable-sqlite-extensions --enable-optimizations" LDFLAGS="-L/usr/local/opt/sqlite/lib" CPPFLAGS="-I/usr/local/opt/sqlite/include" pyenv install 3.10.1
+PYTHON_CONFIGURE_OPTS="--enable-loadable-sqlite-extensions --enable-optimizations" LDFLAGS="-L/usr/local/opt/sqlite/lib" CPPFLAGS="-I/usr/local/opt/sqlite/include" pyenv install 3.9.7
 ```
 
 and then setup your poetry package in a separate virtual environment.
@@ -38,14 +38,14 @@ For instance, this is the poetry package install in Ubuntu:
 3. `pyenv activate <YOUR VENV NAME>`
 4. Set your venv and install packages like:
 ```bash
-poetry env use /home/<YOUR USERNAME>/.pyenv/versions/3.10.1/bin/python3 && poetry install
+poetry env use /home/<YOUR USERNAME>/.pyenv/versions/<PY_VERSION>/bin/python3 && poetry install
 ```
 You would need to do something similar in your OS platform specific environment.
 Refer to poetry documentation.
 
 If you are locally developing & debugging you could do:
 ```bash
-python3 main.py
+poetry run hypercorn -k uvloop --bind="0.0.0.0:8080" --debug --reload registrations.infrastructure.adapters.api.app:app
 ```
 
 Then hit:
@@ -53,7 +53,10 @@ Then hit:
 
 to view the existing openAPI docs.
 
-
+To run tests, do:
+```bash
+poetry run pytest -m fast tests
+```
 ### Pending Todos:
 - [x] dockerize
 - [ ] postgresql plug
