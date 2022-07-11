@@ -7,7 +7,7 @@ RUN python3 -m pip install -U pip && python3 -m pip install --no-cache-dir poetr
 
 WORKDIR /app
 
-ADD registrations /app/registrations
+COPY registrations /app/registrations
 COPY LICENSE /app
 COPY *.toml /app
 COPY poetry.lock /app
