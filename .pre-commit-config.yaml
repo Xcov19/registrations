@@ -36,6 +36,8 @@ repos:
             "--disable=C",
             "--disable=C0415",
             "--disable=W",
+            "--disable=R0903",
+            "--disable=E1101",
             "--msg-template={path}||{msg_id}||{symbol}||{category}||{line}||{column}||{msg}",
           ]
   - repo: https://github.com/pre-commit/mirrors-mypy

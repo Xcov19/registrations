@@ -19,6 +19,9 @@ from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 # Contains interface(ports) definition and implementation.
 # ************************************************* #
 
+# See: https://github.com/python/mypy/issues/5374#issuecomment-406218346
+IHUOW = TypeVar("IHUOW", bound=Type[InterfaceHospitalUOW])
+
 
 class InterfaceEmailVerificationService(Protocol):
     """Infrastructure service interface for email verification."""
@@ -66,7 +69,7 @@ class RegisterHospitalService:
     @classmethod
     async def register_hospital(
         cls,
-        hospital_uow_async: Type[InterfaceHospitalUOW],
+        hospital_uow_async: IHUOW,
         hospital_entry: HospitalEntityType,
     ):
         if isinstance(hospital_entry, UnclaimedHospital):

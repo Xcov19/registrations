@@ -39,6 +39,7 @@ class OwnershipType(enum_utils.EnumWithItems):
     Public = "public"
     Private = "private"
     Pub_Pvt = "public_private"
+    Charitable = "charitable"
 
 
 # Value Object
