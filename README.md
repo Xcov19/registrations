@@ -1,11 +1,22 @@
 # healthcare registrations
 
+[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
+
 Microservice that allows CCCs (covid health care centers) to register themselves via a web form.
 This service provides an unverified dump of registered hospitals.
 
 Based on hexagonal architecture design on fastapi designed to run as a microservice.
 
 ## How to Run
+
+#### TL;DR:
+Do
+```bash
+docker compose up --build
+```
+
+and hit : `http://0.0.0.0:8081/docs`
+to check the openspec api docs.
 
 ### Prerequisites
 You need to install docker machine & docker compose.
@@ -34,12 +45,13 @@ PYTHON_CONFIGURE_OPTS="--enable-loadable-sqlite-extensions --enable-optimization
 and then setup your poetry package in a separate virtual environment.
 For instance, this is the poetry package install in Ubuntu:
 1. Setup poetry like:```python3 -m pip install --user --no-cache-dir poetry```
-2. Create a `pyenv virtualenv 3.10.1 <YOUR VENV NAME>`
+2. Create a `pyenv virtualenv 3.9.7 <YOUR VENV NAME>`
 3. `pyenv activate <YOUR VENV NAME>`
 4. Set your venv and install packages like:
 ```bash
 poetry env use /home/<YOUR USERNAME>/.pyenv/versions/<PY_VERSION>/bin/python3 && poetry install
 ```
+In this case the `PY_VERSION` is `3.9.7`
 You would need to do something similar in your OS platform specific environment.
 Refer to poetry documentation.
 
