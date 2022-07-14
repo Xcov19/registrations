@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Optional
 
 import fastapi
-import pydantic
 
 from registrations.domain.dto import RegisterKeyContact
 from registrations.domain.dto import ToHospitalRegistrationEntry
