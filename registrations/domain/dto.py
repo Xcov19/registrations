@@ -24,7 +24,7 @@ class RegisterKeyContact(
     email: Optional[pydantic.EmailStr]
 
 
-class HospitalRegistrationEntry(
+class ToHospitalRegistrationEntry(
     pydantic.BaseModel,
     allow_mutation=False,
     validate_assignment=True,
@@ -83,10 +83,10 @@ class HospitalRegistrationEntry(
             raise ValueError(error_msg)
         return values
 
-    def build_hospital_entity(self) -> registration.HospitalEntityType:
+    def build_hospital_entity_dict(self) -> dict:
         """Build hospital entity.
 
-        :return: HospitalEntityType, the hospital entity to register.
+        :return: dict, the hospital entity dict to register.
         """
         builder_dict = self.dict()
         if verified_status := builder_dict.get("verified_status"):
@@ -98,8 +98,4 @@ class HospitalRegistrationEntry(
         builder_dict["phone_number"] = registration.PhoneNumber(
             number=builder_dict.pop("hospital_contact_number")
         )
-        # Most of the domain attributes will be validated by the pydantic library
-        # for the relevant entry via RegisterHospitalService.
-        return hospital_registration_services.RegisterHospitalService.build_hospital_factory(
-            **builder_dict
-        )
+        return builder_dict
