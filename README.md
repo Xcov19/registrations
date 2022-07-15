@@ -69,6 +69,12 @@ To run tests, do:
 ```bash
 poetry run pytest -m fast tests
 ```
+
+#### A note on Type Annotations
+
+Have a read on effective type hints with mypy for motivation behind building a type annotated codebase:
+https://blog.wolt.com/engineering/2021/09/30/professional-grade-mypy-configuration/
+
 ### Pending Todos:
 - [x] dockerize
 - [ ] postgresql plug
