@@ -14,15 +14,18 @@ class UOWSessionFlag(enum.Enum):
 
     COMMITTED = "committed"
     ROLLED_BACK = "rolled_back"
+    CLOSED = "closed"
 
 
 class InterfaceHospitalRepo(Protocol):
     @abc.abstractmethod
-    async def save_unverified_hospital(self, **kwargs) -> UnverifiedRegisteredHospital:
+    async def save_unverified_hospital(
+        self, **kwargs: str
+    ) -> UnverifiedRegisteredHospital:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def save_unclaimed_hospital(self, **kwargs) -> UnclaimedHospital:
+    async def save_unclaimed_hospital(self, **kwargs: str) -> UnclaimedHospital:
         raise NotImplementedError
 
 
@@ -36,7 +39,7 @@ class InterfaceHospitalUOW(Protocol):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type: Exception, exc_val: str, exc_tb: str) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -48,5 +51,5 @@ class InterfaceHospitalUOW(Protocol):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def close(self):
+    async def close(self) -> Literal[UOWSessionFlag.CLOSED]:
         raise NotImplementedError

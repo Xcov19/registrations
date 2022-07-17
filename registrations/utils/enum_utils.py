@@ -1,9 +1,9 @@
 import enum
 
 
-def enum_value_of(enum_class) -> str:
+def enum_value_of(enum_class: enum.Enum) -> str:
     assert isinstance(enum_class, enum.Enum)
-    return enum_class.value
+    return str(enum_class.value)
 
 
 class EnumWithItems(enum.Enum):
