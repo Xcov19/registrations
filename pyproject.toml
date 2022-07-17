@@ -31,6 +31,7 @@ pytest = "7.1.2"
 black = {extras = ["d", "click==8.0.2"], version = ">=22.1.0"}
 pre-commit = "^2.17.0"
 pylint = "^2.14.4"
+pycln = "^2.0.3"
 anyio = "~3.6.1"
 pytest-asyncio = "0.19.0"
 pysqlite3 = "^0.4.6"
@@ -67,3 +68,13 @@ warn_unused_ignores = true
 # mypy per-module options:
 [tool.pydantic-mypy]
 init_typed = true
+
+# See: https://hadialqattan.github.io/pycln/#/?id=usage
+[tool.pycln]
+path = "registrations/"
+exclude = "*.pyc$"
+expand_stars=true
+verbose=true
+diff=true
+all=true
+no_gitignore=false
