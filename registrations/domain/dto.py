@@ -53,13 +53,13 @@ class ToHospitalRegistrationEntry(
     def validate_name(cls, name: str) -> str:
         """Validate name has atleast one word with 3 characters."""
         split_names = name.strip().split()
-        valid_conditions = split_names and (
+        if valid_conditions := split_names and (
             any(len(word) >= 2 for word in split_names)
             or (len(split_names) == 1 and len(name.strip().split()[0]) >= 3)
-        )
-        if not valid_conditions:
+        ):
+            return name
+        else:
             raise ValueError(f"Invalid name: {name}. Not enough characters.")
-        return name
 
     @pydantic.root_validator
     @classmethod
