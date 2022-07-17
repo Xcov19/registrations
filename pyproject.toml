@@ -52,6 +52,15 @@ build-backend = "poetry.core.masonry.api"
 [tool.mypy]
 python_version = "3.9"
 plugins = ["pydantic.mypy"]
+# See: https://blog.wolt.com/engineering/2021/09/30/professional-grade-mypy-configuration/
+disallow_untyped_defs = true
+check_untyped_defs = true
+disallow_any_unimported = true
+ignore_missing_imports = false
+no_implicit_optional = true
+warn_return_any = true
+show_error_codes = true
+warn_unused_ignores = true
 
 # See: https://pydantic-docs.helpmanual.io/mypy_plugin/
 # mypy per-module options:
