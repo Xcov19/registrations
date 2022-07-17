@@ -3,28 +3,43 @@ from __future__ import annotations
 import asyncio
 import concurrent.futures
 import time
-from asyncio import Future
 from concurrent.futures import Future
 from typing import Any
+from typing import Coroutine
+from typing import Generic
+from typing import Literal
 from typing import Optional
+from typing import Protocol
+from typing import Type
 from unittest import mock
 
 import pydantic
 import pytest
 
+from registrations.domain import dto
 from registrations.domain.hospital.registration import HospitalEntryAggregate
-from registrations.domain.hospital.registration import MissingRegistrationFieldError
+from registrations.domain.hospital.registration import HospitalEntryDictType
+from registrations.domain.hospital.registration import PhoneNumber
 from registrations.domain.hospital.registration import UnclaimedHospital
 from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
+from registrations.domain.location.location import Address
 from registrations.domain.repo.registration_repo import InterfaceHospitalRepo
 from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 from registrations.domain.repo.registration_repo import UOWSessionFlag
+from registrations.domain.services.application_services import (
+    HospitalRegistrationApplicationService,
+)
 from registrations.domain.services.hospital_registration_services import (
     HospitalEntityType,
 )
 from registrations.domain.services.hospital_registration_services import (
     RegisterHospitalService,
 )
+from registrations.utils.errors import InvalidRegistrationEntryError
+from registrations.utils.errors import MissingRegistrationFieldError
+from registrations.utils.errors import ValidationModelType
+
+# from asyncio import Future
 
 
 # **************************************************** #
@@ -44,10 +59,10 @@ from registrations.domain.services.hospital_registration_services import (
 class FakeDBSession:
     """Fake a database session."""
 
-    def session(self):
+    def session(self) -> None:
         done, pending = concurrent.futures.wait(
             [self.__create_future()],
-            timeout=1,
+            timeout=2,
             return_when=concurrent.futures.ALL_COMPLETED,
         )
         if pending:
@@ -68,27 +83,45 @@ class FakeDBSession:
 class FakeHospitalRepoImpl(InterfaceHospitalRepo):
     def __init__(self, db_session: Optional[FakeDBSession] = None):
         self.__session = db_session
+        self.__success = False
+
+    @property
+    def is_successful(self) -> bool:
+        """A test indicator whether fake session executed successfully."""
+        return self.__success
 
     @property
     def session(self) -> FakeDBSession | None:
         return self.__session
 
-    @session.setter
-    def session(self, db_session: FakeDBSession):
+    def set_session(self, db_session: FakeDBSession) -> None:
         self.__session = db_session
 
-    async def save_unverified_hospital(self, **kwargs) -> UnverifiedRegisteredHospital:
+    async def save_unverified_hospital(
+        self, **kwargs: HospitalEntryDictType
+    ) -> UnverifiedRegisteredHospital:
         try:
+            assert isinstance(self.session, FakeDBSession), "Should be a DB Session"
             self.session.session()
             print(kwargs)
-            return HospitalEntryAggregate.build_factory(**kwargs)
-        except pydantic.ValidationError as e:
+            self.__success = True
+            hospital_entry = HospitalEntryAggregate.build_factory(**kwargs)
+            assert isinstance(hospital_entry, UnverifiedRegisteredHospital)
+            return hospital_entry
+        except (pydantic.ValidationError, AttributeError) as e:
             raise e
 
-    async def save_unclaimed_hospital(self, **kwargs) -> UnclaimedHospital:
+    async def save_unclaimed_hospital(
+        self, **kwargs: HospitalEntryDictType
+    ) -> UnclaimedHospital:
         try:
+            assert isinstance(self.session, FakeDBSession), "Should be a DB Session"
             self.session.session()
-            return HospitalEntryAggregate.build_factory(**kwargs)
+            print(kwargs)
+            self.__success = True
+            hospital_entry = HospitalEntryAggregate.build_factory(**kwargs)
+            assert isinstance(hospital_entry, UnclaimedHospital)
+            return hospital_entry
         except pydantic.ValidationError as e:
             raise e
 
@@ -98,52 +131,61 @@ class FakeHospitalRepoImpl(InterfaceHospitalRepo):
 # we need to mock the hospital unit of work.
 # **************************************************** #
 class FakeHospitalUOWAsyncImpl(InterfaceHospitalUOW):
-    hospital_repo: InterfaceHospitalRepo = FakeHospitalRepoImpl()
+    hospital_repo = FakeHospitalRepoImpl()
 
-    def __init__(self):
+    def __init__(self) -> None:
         print("Creating FakeDBSession.")
         self._db_session = FakeDBSession()
         print("Created FakeDBSession.")
 
-    async def commit(self) -> UOWSessionFlag.COMMITTED:
+    async def commit(self) -> Literal[UOWSessionFlag.COMMITTED]:
         """Commit the unit of work."""
         print("Committing unit of work")
         return UOWSessionFlag.COMMITTED
 
-    async def rollback(self) -> UOWSessionFlag.ROLLED_BACK:
+    async def rollback(self) -> Literal[UOWSessionFlag.ROLLED_BACK]:
         """Rollback the unit of work."""
         print("Rolling back unit of work")
         return UOWSessionFlag.ROLLED_BACK
 
-    async def close(self):
+    async def close(self) -> Literal[UOWSessionFlag.CLOSED]:
         """Close the unit of work."""
         print("Closing UOW repo session")
         await asyncio.sleep(2)
+        return UOWSessionFlag.CLOSED
 
     async def __aenter__(self) -> FakeHospitalUOWAsyncImpl:
         """Create a storage session using unit of work."""
         try:
             print("Setting db_session to UOW repo.")
-            self.hospital_repo.session = self._db_session
+            self.hospital_repo.set_session(self._db_session)
             return self
         except (AttributeError, pydantic.ValidationError) as e:
             await self.close()
             raise e
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: Exception,
+        exc_val: str | MissingRegistrationFieldError,
+        exc_tb: str,
+    ) -> None:
         """Exit context manager."""
         await self.commit()
         if exc_val:
             print("Error during UOW exit.")
+            print(exc_type)
+            print(exc_val)
             await self.rollback()
             await self.close()
             print("Closed UOW repo session.")
-            model = (
-                UnverifiedRegisteredHospital
-                if "UnverifiedRegisteredHospital" in str(exc_val)
-                else UnclaimedHospital
-            )
-            raise MissingRegistrationFieldError(str(exc_val), model, str(exc_tb))
+            if exc_type == AttributeError:
+                raise AttributeError(exc_val)
+            if exc_type == MissingRegistrationFieldError:
+                print("exc_val", exc_val, type(exc_val))
+                assert not isinstance(exc_val, str)
+                model: ValidationModelType = exc_val.model
+                raise MissingRegistrationFieldError(str(exc_type), model, exc_tb)
 
 
 # **************************************************** #
@@ -160,7 +202,7 @@ def repo_stub() -> FakeHospitalRepoImpl:
 
 
 @pytest.fixture
-def uow_stub():
+def uow_stub() -> mock.Mock:
     return mock.Mock(
         spec_set=FakeHospitalUOWAsyncImpl,
         side_effect=FakeHospitalUOWAsyncImpl,
@@ -177,8 +219,11 @@ class TestHospitalRegistrationUOW:
     """Tests the hospital registration service unit of work."""
 
     async def test_register_hospital_uow_save_unverified_hospital(
-        self, valid_unverified_hospital, uow_stub, repo_stub
-    ):
+        self,
+        valid_unverified_hospital: dict,
+        uow_stub: mock.Mock,
+        repo_stub: FakeHospitalRepoImpl,
+    ) -> None:
         async with uow_stub() as uow_ctx:
             with mock.patch.object(
                 uow_ctx, "hospital_repo", spec_set=True, autospec=True, wraps=repo_stub
@@ -190,8 +235,8 @@ class TestHospitalRegistrationUOW:
                 uow_stub.assert_called_once()
 
     async def test_register_hospital_uow_invalid_save_unverified_hospital(
-        self, invalid_unverified_hospital
-    ):
+        self, invalid_unverified_hospital: dict
+    ) -> None:
         with pytest.raises(
             MissingRegistrationFieldError, match=".+validation error.+"
         ) as exc:
@@ -210,7 +255,7 @@ class TestHospitalRegistrationService:
 
     def test_build_factory_valid_unverified_hospital(
         self, valid_unverified_hospital: dict
-    ):
+    ) -> None:
         hospital_entity: HospitalEntityType = (
             RegisterHospitalService.build_hospital_factory(**valid_unverified_hospital)
         )
@@ -218,7 +263,7 @@ class TestHospitalRegistrationService:
 
     def test_build_factory_invalid_unverified_hospital(
         self, invalid_unverified_hospital: dict
-    ):
+    ) -> None:
         with pytest.raises(
             MissingRegistrationFieldError, match=r".*Field missing.*"
         ) as exc:
@@ -229,13 +274,15 @@ class TestHospitalRegistrationService:
 
     def test_build_factory_valid_unclaimed_hospital(
         self, valid_unclaimed_hospital: dict
-    ):
+    ) -> None:
         hospital_entity: HospitalEntityType = (
             RegisterHospitalService.build_hospital_factory(**valid_unclaimed_hospital)
         )
         assert isinstance(hospital_entity, UnclaimedHospital)
 
-    def test_build_factory_invalid_unclaimed_hospital(self, invalid_unclaimed_hospital):
+    def test_build_factory_invalid_unclaimed_hospital(
+        self, invalid_unclaimed_hospital: dict
+    ) -> None:
         with pytest.raises(
             MissingRegistrationFieldError,
             match=r".*key_contact_registrar is required.*",
@@ -244,8 +291,11 @@ class TestHospitalRegistrationService:
             assert "Field missing" in exc.value
 
     async def test_register_unverified_hospital(
-        self, valid_unverified_hospital, uow_stub, repo_stub
-    ):
+        self,
+        valid_unverified_hospital: dict,
+        uow_stub: mock.Mock,
+        repo_stub: FakeHospitalRepoImpl,
+    ) -> None:
         hospital_entity: HospitalEntityType = (
             RegisterHospitalService.build_hospital_factory(**valid_unverified_hospital)
         )
@@ -253,10 +303,51 @@ class TestHospitalRegistrationService:
         uow_stub.assert_called_once()
 
     async def test_register_unclaimed_hospital(
-        self, valid_unclaimed_hospital, uow_stub, repo_stub
-    ):
+        self,
+        valid_unclaimed_hospital: dict,
+        uow_stub: mock.Mock,
+        repo_stub: FakeHospitalRepoImpl,
+    ) -> None:
         hospital_entity: HospitalEntityType = (
             RegisterHospitalService.build_hospital_factory(**valid_unclaimed_hospital)
         )
         await RegisterHospitalService.register_hospital(uow_stub, hospital_entity)
         uow_stub.assert_called_once()
+
+
+@pytest.mark.fast
+@pytest.mark.usefixtures("anyio_backend")
+class TestHospitalRegistrationApplicationService:
+    """Tests application service for hospital registration."""
+
+    async def test_register_hospital_manual_verification(
+        self, registration_entry_manual_verification: dto.ToHospitalRegistrationEntry
+    ) -> None:
+        repo_instance = FakeHospitalRepoImpl(FakeDBSession())
+        with mock.patch.object(
+            FakeHospitalUOWAsyncImpl,
+            "hospital_repo",
+            spec_set=True,
+            wraps=repo_instance,
+        ) as hospital_repo_mock:
+            await HospitalRegistrationApplicationService.register_hospital(
+                FakeHospitalUOWAsyncImpl, registration_entry_manual_verification
+            )
+            hospital_repo_mock.save_unverified_hospital.assert_called_once()
+            assert repo_instance.is_successful is True
+
+    async def test_register_hospital_unclaimed(
+        self, registration_entry_unclaimed: dto.ToHospitalRegistrationEntry
+    ) -> None:
+        repo_instance = FakeHospitalRepoImpl(FakeDBSession())
+        with mock.patch.object(
+            FakeHospitalUOWAsyncImpl,
+            "hospital_repo",
+            spec_set=True,
+            wraps=repo_instance,
+        ) as hospital_repo_mock:
+            await HospitalRegistrationApplicationService.register_hospital(
+                FakeHospitalUOWAsyncImpl, registration_entry_unclaimed
+            )
+            hospital_repo_mock.save_unclaimed_hospital.assert_called_once()
+            assert repo_instance.is_successful is True

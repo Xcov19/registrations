@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import abc
 import enum
+from typing import Any
+from typing import Coroutine
 from typing import Literal
 from typing import Protocol
 
+from registrations.domain.hospital.registration import HospitalEntityType
 from registrations.domain.hospital.registration import UnclaimedHospital
 from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
+from registrations.utils.errors import MissingRegistrationFieldError
 
 
 class UOWSessionFlag(enum.Enum):
@@ -39,7 +43,12 @@ class InterfaceHospitalUOW(Protocol):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def __aexit__(self, exc_type: Exception, exc_val: str, exc_tb: str) -> None:
+    async def __aexit__(
+        self,
+        exc_type: Exception,
+        exc_val: str | MissingRegistrationFieldError,
+        exc_tb: str,
+    ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
