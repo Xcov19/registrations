@@ -40,11 +40,6 @@ repos:
             "--disable=E1101",
             "--msg-template={path}||{msg_id}||{symbol}||{category}||{line}||{column}||{msg}",
           ]
-  - repo: https://github.com/hadialqattan/pycln
-    rev: v2.0.3
-    hooks:
-      - id: pycln
-        args: [ --config=pyproject.toml ]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.961
     hooks:

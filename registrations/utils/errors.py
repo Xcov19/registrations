@@ -3,13 +3,11 @@ from __future__ import annotations
 from typing import Any
 from typing import Optional
 from typing import Type
-from typing import TypeVar
 from typing import Union
 
 import pydantic
 from pydantic import error_wrappers
 from pydantic import main
-
 
 ValidationModelType = Union[main.ModelMetaclass, Type[pydantic.BaseModel], Any]
 
