@@ -2,15 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import concurrent.futures
+import logging
+import sys
 import time
 from concurrent.futures import Future
 from typing import Any
-from typing import Coroutine
-from typing import Generic
 from typing import Literal
 from typing import Optional
-from typing import Protocol
-from typing import Type
 from unittest import mock
 
 import pydantic
@@ -19,10 +17,8 @@ import pytest
 from registrations.domain import dto
 from registrations.domain.hospital.registration import HospitalEntryAggregate
 from registrations.domain.hospital.registration import HospitalEntryDictType
-from registrations.domain.hospital.registration import PhoneNumber
 from registrations.domain.hospital.registration import UnclaimedHospital
 from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
-from registrations.domain.location.location import Address
 from registrations.domain.repo.registration_repo import InterfaceHospitalRepo
 from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 from registrations.domain.repo.registration_repo import UOWSessionFlag
@@ -35,11 +31,8 @@ from registrations.domain.services.hospital_registration_services import (
 from registrations.domain.services.hospital_registration_services import (
     RegisterHospitalService,
 )
-from registrations.utils.errors import InvalidRegistrationEntryError
 from registrations.utils.errors import MissingRegistrationFieldError
 from registrations.utils.errors import ValidationModelType
-
-# from asyncio import Future
 
 
 # **************************************************** #
@@ -51,6 +44,11 @@ from registrations.utils.errors import ValidationModelType
 #
 # **************************************************** #
 
+# Get current module logger
+TEST_LOGGER = logging.getLogger(__name__)
+stream_handler = logging.StreamHandler(stream=sys.stderr)
+stream_handler.setLevel(logging.CRITICAL)
+TEST_LOGGER.addHandler(stream_handler)
 
 # **************************************************** #
 # To unit test the hospital registration service,
@@ -103,7 +101,7 @@ class FakeHospitalRepoImpl(InterfaceHospitalRepo):
         try:
             assert isinstance(self.session, FakeDBSession), "Should be a DB Session"
             self.session.session()
-            print(kwargs)
+            TEST_LOGGER.error(f"{self} Parameters are {kwargs}")
             self.__success = True
             hospital_entry = HospitalEntryAggregate.build_factory(**kwargs)
             assert isinstance(hospital_entry, UnverifiedRegisteredHospital)
@@ -117,7 +115,7 @@ class FakeHospitalRepoImpl(InterfaceHospitalRepo):
         try:
             assert isinstance(self.session, FakeDBSession), "Should be a DB Session"
             self.session.session()
-            print(kwargs)
+            TEST_LOGGER.error(f"{self} Parameters are {kwargs}")
             self.__success = True
             hospital_entry = HospitalEntryAggregate.build_factory(**kwargs)
             assert isinstance(hospital_entry, UnclaimedHospital)
@@ -173,16 +171,18 @@ class FakeHospitalUOWAsyncImpl(InterfaceHospitalUOW):
         """Exit context manager."""
         await self.commit()
         if exc_val:
-            print("Error during UOW exit.")
-            print(exc_type)
-            print(exc_val)
+            TEST_LOGGER.exception(
+                "Error during UOW exit.", exc_info=exc_type, stack_info=True
+            )
             await self.rollback()
             await self.close()
-            print("Closed UOW repo session.")
+            TEST_LOGGER.error("Closed UOW repo session.")
             if exc_type == AttributeError:
                 raise AttributeError(exc_val)
             if exc_type == MissingRegistrationFieldError:
-                print("exc_val", exc_val, type(exc_val))
+                TEST_LOGGER.error(
+                    exc_val, exc_info=(type(exc_type), BaseException(exc_tb), None)
+                )
                 assert not isinstance(exc_val, str)
                 model: ValidationModelType = exc_val.model
                 raise MissingRegistrationFieldError(str(exc_type), model, exc_tb)

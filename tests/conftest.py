@@ -1,8 +1,8 @@
+import logging
 import random
 import uuid
 from typing import Any
 
-import pydantic
 import pytest
 from pytest import FixtureRequest
 
@@ -30,6 +30,16 @@ from registrations.domain.location.location import Address
 )
 def anyio_backend(request: FixtureRequest.session) -> Any:  # type: ignore[no-any-unimported]
     return request.param
+
+
+# ************************************************* #
+# Setup a fixture caplog for unsuccessful tests.
+# You can run pytest -ra -q to see only unsuccessful logs.
+# ************************************************* #
+@pytest.fixture(scope="function", autouse=True)
+def caplogger(caplog: Any) -> Any:
+    caplog.set_level(logging.ERROR, logger="tests.test_registrations")
+    return caplog
 
 
 @pytest.fixture(scope="module")
