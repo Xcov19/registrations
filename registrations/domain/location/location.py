@@ -12,7 +12,7 @@ class Address(pydantic.BaseModel, extra=pydantic.Extra.forbid):
 
     @pydantic.root_validator(pre=True)
     @classmethod
-    def _validate_address(cls, values):
+    def _validate_address(cls, values: dict) -> dict:
         # TODO: use internal library to validate abbreviation ISO codes for:
         # 1. country
         # 2. state

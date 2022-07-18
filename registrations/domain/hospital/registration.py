@@ -1,32 +1,20 @@
 from __future__ import annotations
 
 import uuid
+from typing import Any
+from typing import Dict
 from typing import Optional
-from typing import Type
-from typing import TypeVar
 from typing import Union
 
 import email_validator
 import phonenumbers
 import pydantic
 from email_validator import EmailNotValidError
+from phonenumbers import parse as parse_number
 
 from registrations.domain.location.location import Address
 from registrations.utils import enum_utils
-
-
-class MissingRegistrationFieldError(pydantic.ValidationError):
-    def __init__(
-        self,
-        error_msg: str,
-        model: Type[pydantic.BaseModel],
-        exc_tb: Optional[str] = None,
-    ):
-        error_wrapper = pydantic.error_wrappers.ErrorWrapper(
-            Exception(error_msg), exc_tb or error_msg
-        )
-        super().__init__(errors=[error_wrapper], model=model)
-
+from registrations.utils.errors import MissingRegistrationFieldError
 
 # ************************************************* #
 # These are the domain entities of registration..
@@ -39,6 +27,7 @@ class OwnershipType(enum_utils.EnumWithItems):
     Public = "public"
     Private = "private"
     Pub_Pvt = "public_private"
+    Charitable = "charitable"
 
 
 # Value Object
@@ -55,7 +44,7 @@ class PhoneNumber(pydantic.BaseModel, allow_mutation=False, validate_assignment=
     @pydantic.validator("number", pre=True)
     @classmethod
     def _validate_number(cls, phone_number: str) -> str:
-        phonenum_obj: phonenumbers.PhoneNumber = phonenumbers.parse(phone_number)
+        phonenum_obj: phonenumbers.PhoneNumber = parse_number(phone_number)  # type: ignore[no-any-unimported]
         if not (
             phonenumbers.is_possible_number(phonenum_obj)
             and phonenumbers.is_valid_number(phonenum_obj)
@@ -65,7 +54,12 @@ class PhoneNumber(pydantic.BaseModel, allow_mutation=False, validate_assignment=
 
 
 # Value Object
-class ContactPerson(pydantic.BaseModel, allow_mutation=False, validate_assignment=True):
+class ContactPerson(
+    pydantic.BaseModel,
+    extra=pydantic.Extra.forbid,
+    allow_mutation=False,
+    validate_assignment=True,
+):
     """Key contact person registering the hospital."""
 
     name: str
@@ -80,6 +74,24 @@ class ContactPerson(pydantic.BaseModel, allow_mutation=False, validate_assignmen
         if email and not email_validator.validate_email(email):
             raise EmailNotValidError
         return email
+
+
+# ================================================== #
+# Fix for incompatible type.
+# See: https://github.com/python/mypy/issues/5382
+# Fixes error of type:
+# Argument 1 to <Some Caller> has incompatible type "**Dict[str, <Data types>]";
+# expected...
+# TypeDict and Final does not fix this.
+# ================================================== #
+HospitalEntryDictType = Union[
+    pydantic.UUID1,
+    str,
+    Optional[OwnershipType],
+    Address,
+    PhoneNumber,
+    Optional[VerificationStatus],
+]
 
 
 class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
@@ -98,8 +110,7 @@ class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
     phone_number: PhoneNumber
 
     @classmethod
-    def build_factory(cls, **kwargs) -> HospitalEntityType:
-        cls._validate_attributes(**kwargs)
+    def build_factory(cls, **kwargs: HospitalEntryDictType) -> HospitalEntityType:
         return (
             cls._build_unclaimed_hospital_factory(**kwargs)
             if cls._can_be_verified(**kwargs)
@@ -107,38 +118,37 @@ class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
         )
 
     @classmethod
-    def register_unverified_hospital_factory(
-        cls, **kwargs
-    ) -> UnverifiedRegisteredHospital:
-        return UnverifiedRegisteredHospital(**kwargs)
-
-    @classmethod
-    def register_unclaimed_hospital_factory(cls, **kwargs) -> UnclaimedHospital:
-        return UnclaimedHospital(**kwargs)
-
-    @classmethod
-    def _build_unclaimed_hospital_factory(cls, **kwargs) -> UnclaimedHospital:
-        return cls.register_unclaimed_hospital_factory(**kwargs)
+    def _build_unclaimed_hospital_factory(
+        cls, **kwargs: HospitalEntryDictType
+    ) -> UnclaimedHospital:
+        # Required to typecase the expectation
+        # of kwargs to have any type.
+        values_dict: Dict[str, Any] = kwargs
+        return UnclaimedHospital(**values_dict)
 
     @classmethod
     def _build_unverified_hospital_factory(
-        cls, **kwargs
+        cls, **kwargs: HospitalEntryDictType
     ) -> UnverifiedRegisteredHospital:
         if not kwargs.get("key_contact_registrar"):
             raise MissingRegistrationFieldError(
                 "Field missing. key_contact_registrar is required.",
                 UnverifiedRegisteredHospital,
             )
-        return cls.register_unverified_hospital_factory(**kwargs)
+        # Required to typecase the expectation
+        # of kwargs to have any type.
+        values_dict: Dict[str, Any] = kwargs
+        return UnverifiedRegisteredHospital(**values_dict)
 
+    @pydantic.root_validator
     @classmethod
-    def _validate_attributes(cls, **kwargs) -> bool:
-        if missing_attrs := cls._check_missing_attributes(**kwargs):
+    def _validate_attributes(cls, values: dict) -> dict:
+        if missing_attrs := cls._check_missing_attributes(**values):
             raise AttributeError(f"Missing Attributes: {','.join(missing_attrs)}")
-        return True
+        return values
 
     @classmethod
-    def _check_missing_attributes(cls, **kwargs) -> Optional[list]:
+    def _check_missing_attributes(cls, **kwargs: str) -> Optional[list]:
         """Check entity attributes if absent in input."""
         field_attrs = cls.__fields__.keys()
         kwarg_keys = kwargs.keys()
@@ -147,7 +157,7 @@ class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
     @classmethod
     def _can_be_verified(
         cls,
-        **kwargs,
+        **kwargs: HospitalEntryDictType,
     ) -> bool:
         """Checks if the hospital entry can be verified.
 
@@ -171,14 +181,14 @@ class UnclaimedHospital(HospitalEntryAggregate):
     verified_status: VerificationStatus
 
     @classmethod
-    def hospital_is_verified(cls, **kwargs) -> bool:
+    def hospital_is_verified(cls, **kwargs: HospitalEntryDictType) -> bool:
         return (
             bool(kwargs.get("verified_status"))
             and kwargs["verified_status"] == VerificationStatus.Verified
         )
 
     @classmethod
-    def hospital_verification_pending(cls, **kwargs) -> bool:
+    def hospital_verification_pending(cls, **kwargs: HospitalEntryDictType) -> bool:
         return (
             bool(kwargs.get("verified_status"))
             and kwargs["verified_status"] == VerificationStatus.Pending
@@ -190,7 +200,4 @@ class UnclaimedHospital(HospitalEntryAggregate):
 # Incompatible return type:
 # Expected UnverifiedRegisteredHospital but got typing.Union[UnclaimedHospital, UnverifiedRegisteredHospital].
 # ************************************************* #
-UnionRegisteredTypes = TypeVar(
-    "UnionRegisteredTypes", UnverifiedRegisteredHospital, UnclaimedHospital
-)
 HospitalEntityType = Union[UnclaimedHospital, UnverifiedRegisteredHospital]

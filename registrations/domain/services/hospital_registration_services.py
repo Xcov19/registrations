@@ -9,6 +9,7 @@ import pydantic
 
 from registrations.domain.hospital.registration import HospitalEntityType
 from registrations.domain.hospital.registration import HospitalEntryAggregate
+from registrations.domain.hospital.registration import HospitalEntryDictType
 from registrations.domain.hospital.registration import UnclaimedHospital
 from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
 from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
@@ -18,6 +19,9 @@ from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 # for domain entities of registration.
 # Contains interface(ports) definition and implementation.
 # ************************************************* #
+
+# See: https://github.com/python/mypy/issues/5374#issuecomment-406218346
+IHUOW = TypeVar("IHUOW", bound=Type[InterfaceHospitalUOW])
 
 
 class InterfaceEmailVerificationService(Protocol):
@@ -59,16 +63,18 @@ class RegisterHospitalService:
     """Register unverified hospital manually or imported but unclaimed."""
 
     @classmethod
-    def build_hospital_factory(cls, **kwargs) -> HospitalEntityType:
+    def build_hospital_factory(
+        cls, **kwargs: HospitalEntryDictType
+    ) -> HospitalEntityType:
         """Stores hospital entity based on available attributes."""
         return HospitalEntryAggregate.build_factory(**kwargs)
 
     @classmethod
     async def register_hospital(
         cls,
-        hospital_uow_async: Type[InterfaceHospitalUOW],
+        hospital_uow_async: IHUOW,
         hospital_entry: HospitalEntityType,
-    ):
+    ) -> None:
         if isinstance(hospital_entry, UnclaimedHospital):
             await cls.register_unclaimed_hospital(hospital_uow_async, hospital_entry)
         else:
@@ -79,7 +85,7 @@ class RegisterHospitalService:
         cls,
         hospital_uow_async: Type[InterfaceHospitalUOW],
         unverified_hospital: UnverifiedRegisteredHospital,
-    ):
+    ) -> None:
         """Register hospital manually submitted but unverified."""
         async with hospital_uow_async() as uow_ctx:
             await uow_ctx.hospital_repo.save_unverified_hospital(
@@ -91,7 +97,7 @@ class RegisterHospitalService:
         cls,
         hospital_uow_async: Type[InterfaceHospitalUOW],
         unclaimed_hospital: UnclaimedHospital,
-    ):
+    ) -> None:
         """Register  imported hospital but unclaimed and unverified.
 
         Note: You can verify hospital YET NOT CLAIM
