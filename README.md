@@ -75,29 +75,29 @@ poetry run pytest -m fast tests
 Have a read on effective type hints with mypy for motivation behind building a type annotated codebase:
 https://blog.wolt.com/engineering/2021/09/30/professional-grade-mypy-configuration/
 
-## Structure of core project
+### Structure of core project
 
 Structurally the core project is more or less hexagonal architecture.
 It has layers represented below from a top to bottom view,
 the top layer being interfaces that the application interacts with outside world to
 the inner logic which has no context of dependent moving parts and are plain language objects.
 
-### I/O Adapters
+#### I/O Adapters
 Depends on: Application services, Infrastructure services.
 
-### Application services:
+#### Application services:
 Consumes: IO
 Depends on: Unit of Work, DTO, Domain services.
 
-### Domain services:
+#### Domain services:
 Consumes: Interfaces, Parameters.
 Depends on: Unit of Work, Aggregates.
 
-### Unit of Work
+#### Unit of Work
 Consumes: Domain service.
 Depends on: Repositories.
 
-### Repositories:
+#### Repositories:
 Consumes: UOW.
 Depends on: Aggregate, DTO.
 
