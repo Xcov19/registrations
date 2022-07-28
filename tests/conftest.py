@@ -69,7 +69,7 @@ def valid_unverified_hospital(hospital_root: dict) -> dict:
             "key_contact_registrar": ContactPerson(
                 name="Radhe Shyam",
                 mobile_number=PhoneNumber(number="+919425411234"),
-            )
+            ),
         },
     }
 
@@ -110,6 +110,7 @@ def registration_entry_manual_verification() -> dto.ToHospitalRegistrationEntry:
         address=location.Address(
             street="Rajaji marg", city="Newark", state="MP", country="IN"
         ),
+        added_since="2022-01-01T00:00:00Z",
     )
 
 
