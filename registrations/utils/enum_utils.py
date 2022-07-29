@@ -2,7 +2,8 @@ import enum
 
 
 def enum_value_of(enum_class: enum.Enum) -> str:
-    assert isinstance(enum_class, enum.Enum)
+    if not isinstance(enum_class, enum.Enum):
+        raise AssertionError
     return str(enum_class.value)
 
 
