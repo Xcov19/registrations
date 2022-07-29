@@ -1,18 +1,39 @@
 version: "3"
 
 services:
+#  sql_db:
+#    image: postgres
+#    volumes:
+#      - ./data/db:/var/lib/postgresql/data
+#    ports:
+#      - "8901:5432"
+#    environment:
+#      - POSTGRES_DB=postgres
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=postgres
+#      - POSTGRES_HOST=172.18.0.2
+#      - POSTGRES_PORT=5432
+
   backend:
-    entrypoint: hypercorn -k uvloop --bind="0.0.0.0:8080" --debug --reload main
+    entrypoint: poetry run hypercorn -k uvloop --bind="0.0.0.0:8080" --debug --reload registrations.infrastructure.adapters.api.app:app
     restart: always
     container_name: backend
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
-    expose:
-      - 8080
+      - "8081:8080"
     hostname: backend
-
+#    links:
+#      - sql_db
+#    depends_on:
+#      - sql_db
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=172.18.0.2
+      - POSTGRES_PORT=5432
+      - ENV=test
     volumes:
       - ./storage:/storage

@@ -1,0 +1,88 @@
+[tool.poetry]
+name = "healthcare_signups"
+version = "0.1.0"
+description = "healthcare registrations for patients and staff"
+authors = ["codecakes <akulmat@protonmail.com>"]
+license = "GNU General Public License v3.0"
+include = ["registrations"]
+
+[tool.poetry.dependencies]
+python = "^3.9.7"
+fastapi = {version = "~=0.78.0", extras = ["all"]}
+hypercorn = "0.13.2"
+gunicorn = "20.1.0"
+beanie = "^1.9.1"
+motor = "2.5.1"
+ujson = "^5.4.0"
+uvloop = "~=0.16.0"
+pymongo = "~=3.12.1"
+pydantic = "~=1.9.1"
+Cython = "^0.29.27"
+psycopg = {version = "~=3.0.4", extras = ["binary"]}
+psycopg2-binary = "2.9.3"
+databases = {version = "~=0.5.3", extras = ["postgresql"]}
+orm = {version = "~=0.3.0", extras = ["postgresql"]}
+SQLAlchemy = "~=1.4.27"
+phonenumbers = "~=8.12.50"
+email-validator = "~=1.2.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "7.1.2"
+black = {extras = ["d", "click==8.0.2"], version = ">=22.1.0"}
+pre-commit = "^2.17.0"
+pylint = "^2.14.4"
+isort = "^5.10.1"
+anyio = "~3.6.1"
+pytest-asyncio = "0.19.0"
+pysqlite3 = "^0.4.6"
+types-pytest-lazy-fixture = ">=0.6.3"
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "fast: fast executing tests. use this marker if unsure."
+]
+# Removes warning
+asyncio_mode = "auto"
+log_format = "%(asctime)s %(levelname)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
+addopts = ["-ra -q", "--color=yes",]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# See: https://github.com/python/mypy/issues/5205
+# mypy global options:
+[tool.mypy]
+python_version = "3.9"
+plugins = ["pydantic.mypy"]
+# See: https://blog.wolt.com/engineering/2021/09/30/professional-grade-mypy-configuration/
+disallow_untyped_defs = true
+check_untyped_defs = true
+disallow_any_unimported = true
+ignore_missing_imports = false
+no_implicit_optional = true
+warn_return_any = true
+show_error_codes = true
+warn_unused_ignores = true
+
+# See: https://pydantic-docs.helpmanual.io/mypy_plugin/
+# mypy per-module options:
+[tool.pydantic-mypy]
+init_typed = true
+
+# See: https://hadialqattan.github.io/pycln/#/?id=usage
+[tool.pycln]
+path = "registrations/"
+expand_stars=true
+verbose=true
+diff=true
+all=true
+no_gitignore=false
+
+[tool.isort]
+line_length = 79
+include_trailing_comma = true
+use_parentheses = true
+ensure_newline_before_comments = true

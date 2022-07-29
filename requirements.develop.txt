@@ -1,2 +1,7 @@
 black[d]
+black~=22.1.0
 pre-commit
+pylint
+pytest==6.2.5
+pytest-asyncio==0.16.0
+anyio==3.3.4
