@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import Literal
-from typing import Protocol
+from typing import Literal, Protocol
 
-from registrations.domain.hospital.registration import HospitalEntityType
-from registrations.domain.hospital.registration import UnclaimedHospital
-from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
+from registrations.domain.hospital.registration import (
+    UnclaimedHospital,
+    UnverifiedRegisteredHospital,
+)
 from registrations.utils.errors import MissingRegistrationFieldError
 
 

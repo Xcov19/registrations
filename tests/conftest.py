@@ -7,10 +7,12 @@ import pytest
 from pytest import FixtureRequest
 
 from registrations.domain import dto
-from registrations.domain.hospital.registration import ContactPerson
-from registrations.domain.hospital.registration import OwnershipType
-from registrations.domain.hospital.registration import PhoneNumber
-from registrations.domain.hospital.registration import VerificationStatus
+from registrations.domain.hospital.registration import (
+    ContactPerson,
+    OwnershipType,
+    PhoneNumber,
+    VerificationStatus,
+)
 from registrations.domain.location import location
 from registrations.domain.location.location import Address
 
