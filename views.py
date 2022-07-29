@@ -1,12 +1,10 @@
 import fastapi
-
 import models
+from entities import HealthCareEntity, HealthCareRecordEntity
+
 import repo
 import settings
-from entities import HealthCareEntity
-from entities import HealthCareRecordEntity
-from use_case import HospitalRegistrationUseCase
-from use_case import register_use_case
+from use_case import HospitalRegistrationUseCase, register_use_case
 
 register_hospital_use_case = register_use_case(
     HospitalRegistrationUseCase, repo.PsqlRepo

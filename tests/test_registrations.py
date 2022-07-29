@@ -7,33 +7,35 @@ import logging
 import sys
 import time
 from concurrent.futures import Future
-from typing import Any
-from typing import Literal
-from typing import Optional
+from typing import Any, Literal, Optional
 from unittest import mock
 
 import pydantic
 import pytest
 
 from registrations.domain import dto
-from registrations.domain.hospital.registration import HospitalEntryAggregate
-from registrations.domain.hospital.registration import HospitalEntryDictType
-from registrations.domain.hospital.registration import UnclaimedHospital
-from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
-from registrations.domain.repo.registration_repo import InterfaceHospitalRepo
-from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
-from registrations.domain.repo.registration_repo import UOWSessionFlag
+from registrations.domain.hospital.registration import (
+    HospitalEntryAggregate,
+    HospitalEntryDictType,
+    UnclaimedHospital,
+    UnverifiedRegisteredHospital,
+)
+from registrations.domain.repo.registration_repo import (
+    InterfaceHospitalRepo,
+    InterfaceHospitalUOW,
+    UOWSessionFlag,
+)
 from registrations.domain.services.application_services import (
     HospitalRegistrationApplicationService,
 )
 from registrations.domain.services.hospital_registration_services import (
     HospitalEntityType,
-)
-from registrations.domain.services.hospital_registration_services import (
     RegisterHospitalService,
 )
-from registrations.utils.errors import MissingRegistrationFieldError
-from registrations.utils.errors import ValidationModelType
+from registrations.utils.errors import (
+    MissingRegistrationFieldError,
+    ValidationModelType,
+)
 
 # **************************************************** #
 # These are plenty of inbuilt pytest fixtures. Use
