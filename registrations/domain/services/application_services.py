@@ -3,7 +3,6 @@ import abc
 from typing import Protocol, Type
 
 from registrations.domain.dto import ToHospitalRegistrationEntry
-from registrations.domain.hospital import registration
 from registrations.domain.services import hospital_registration_services
 
 
