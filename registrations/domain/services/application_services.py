@@ -1,7 +1,6 @@
 # Application Service
 import abc
-from typing import Protocol
-from typing import Type
+from typing import Protocol, Type
 
 from registrations.domain.dto import ToHospitalRegistrationEntry
 from registrations.domain.hospital import registration

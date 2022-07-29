@@ -11,15 +11,14 @@ import functools
 from typing import Type
 
 import beanie
+import models
 import orm
+from entities import HealthCareRecordEntity
+from interfaces import MongoRepoInterface, SqlRepoInterface
+from models import HealthCareData
 from motor import motor_asyncio
 
-import models
 import settings
-from entities import HealthCareRecordEntity
-from interfaces import MongoRepoInterface
-from interfaces import SqlRepoInterface
-from models import HealthCareData
 
 
 class PsqlRepo(SqlRepoInterface):
