@@ -10,11 +10,9 @@ import pydantic
 from email_validator import EmailNotValidError
 from phonenumbers import parse as parse_number
 
-from registrations.domain.location.location import Address
-from registrations.domain.location.location import AddressGeoLocation
+from registrations.domain.location.location import Address, AddressGeoLocation
 from registrations.utils import enum_utils
 from registrations.utils.errors import MissingRegistrationFieldError
-
 
 # ************************************************* #
 # These are the domain entities of registration..

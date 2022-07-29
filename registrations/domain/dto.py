@@ -8,8 +8,7 @@ from typing import Optional
 import pydantic
 
 from registrations.domain.hospital import registration
-from registrations.domain.location.location import Address
-from registrations.domain.location.location import AddressGeoLocation
+from registrations.domain.location.location import Address, AddressGeoLocation
 from registrations.utils import enum_utils
 from registrations.utils.errors import InvalidRegistrationEntryError
 
