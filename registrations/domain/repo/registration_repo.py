@@ -5,7 +5,6 @@ import enum
 from typing import Literal, Protocol
 
 from registrations.domain.hospital.registration import (
-    HospitalEntityType,
     UnclaimedHospital,
     UnverifiedRegisteredHospital,
 )
