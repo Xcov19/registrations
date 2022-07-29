@@ -4,8 +4,10 @@ from typing import Optional
 
 import fastapi
 
-from registrations.domain.dto import RegisterKeyContact
-from registrations.domain.dto import ToHospitalRegistrationEntry
+from registrations.domain.dto import (
+    RegisterKeyContact,
+    ToHospitalRegistrationEntry,
+)
 
 router = fastapi.APIRouter(
     tags=["hospitals", "registration"],

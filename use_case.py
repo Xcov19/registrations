@@ -1,12 +1,9 @@
 import functools
-from typing import Callable
-from typing import Type
+from typing import Callable, Type
 
 from entities import HealthCareEntity as HealthCareEntity
-from entities import HealthCareRecordEntity
-from entities import HospitalOnlyEntity
-from errors import DuplicateEntryException
-from errors import InvalidEntryException
+from entities import HealthCareRecordEntity, HospitalOnlyEntity
+from errors import DuplicateEntryException, InvalidEntryException
 from interfaces import RepoInterface
 
 
@@ -54,5 +51,5 @@ class HospitalRegistrationUseCase:
         if not await self.valid_new_entry(test_healthcare_data):
             raise InvalidEntryException(detail="Not a valid entry.")
         if await self.duplicate_exists(test_healthcare_data):
-            raise DuplicateEntryException(detail='Entry already exists.')
+            raise DuplicateEntryException(detail="Entry already exists.")
         return await self.create_entry(healthcare_data)
