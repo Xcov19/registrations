@@ -1,6 +1,10 @@
 version = 1
 
-test_patterns = ["tests/"]
+test_patterns = [
+  "tests/",
+  "tests/**",
+  "test_*.py",
+]
 
 exclude_patterns = [
   ".github/"
