@@ -100,12 +100,14 @@ class FakeHospitalRepoImpl(InterfaceHospitalRepo):
         self, **kwargs: HospitalEntryDictType
     ) -> UnverifiedRegisteredHospital:
         try:
-            assert isinstance(self.session, FakeDBSession), "Should be a DB Session"
+            if not isinstance(self.session, FakeDBSession):
+                raise AssertionError("Should be a DB Session")
             self.session.session()
             TEST_LOGGER.error(f"{self} Parameters are {kwargs}")
             self.__success = True
             hospital_entry = HospitalEntryAggregate.build_factory(**kwargs)
-            assert isinstance(hospital_entry, UnverifiedRegisteredHospital)
+            if not isinstance(hospital_entry, UnverifiedRegisteredHospital):
+                raise AssertionError
             return hospital_entry
         except (pydantic.ValidationError, AttributeError) as e:
             raise e
@@ -114,12 +116,14 @@ class FakeHospitalRepoImpl(InterfaceHospitalRepo):
         self, **kwargs: HospitalEntryDictType
     ) -> UnclaimedHospital:
         try:
-            assert isinstance(self.session, FakeDBSession), "Should be a DB Session"
+            if not isinstance(self.session, FakeDBSession):
+                raise AssertionError("Should be a DB Session")
             self.session.session()
             TEST_LOGGER.error(f"{self} Parameters are {kwargs}")
             self.__success = True
             hospital_entry = HospitalEntryAggregate.build_factory(**kwargs)
-            assert isinstance(hospital_entry, UnclaimedHospital)
+            if not isinstance(hospital_entry, UnclaimedHospital):
+                raise AssertionError
             return hospital_entry
         except pydantic.ValidationError as e:
             raise e
@@ -184,7 +188,8 @@ class FakeHospitalUOWAsyncImpl(InterfaceHospitalUOW):
                 TEST_LOGGER.error(
                     exc_val, exc_info=(type(exc_type), BaseException(exc_tb), None)
                 )
-                assert not isinstance(exc_val, str)
+                if isinstance(exc_val, str):
+                    raise AssertionError
                 model: ValidationModelType = exc_val.model
                 raise MissingRegistrationFieldError(str(exc_type), model, exc_tb)
 
@@ -229,7 +234,8 @@ class TestHospitalRegistrationUOW:
             with mock.patch.object(
                 uow_ctx, "hospital_repo", spec_set=True, autospec=True, wraps=repo_stub
             ):
-                assert isinstance(uow_ctx.hospital_repo, FakeHospitalRepoImpl)
+                if not isinstance(uow_ctx.hospital_repo, FakeHospitalRepoImpl):
+                    raise AssertionError
                 await uow_ctx.hospital_repo.save_unverified_hospital(
                     **valid_unverified_hospital
                 )
@@ -242,7 +248,8 @@ class TestHospitalRegistrationUOW:
             MissingRegistrationFieldError, match=".+validation error.+"
         ) as exc:
             async with FakeHospitalUOWAsyncImpl() as uow_ctx:
-                assert isinstance(uow_ctx.hospital_repo, FakeHospitalRepoImpl)
+                if not isinstance(uow_ctx.hospital_repo, FakeHospitalRepoImpl):
+                    raise AssertionError
                 await uow_ctx.hospital_repo.save_unverified_hospital(
                     **invalid_unverified_hospital
                 )
