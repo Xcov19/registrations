@@ -12,6 +12,18 @@ from registrations.domain.location.location import Address, AddressGeoLocation
 from registrations.utils import enum_utils
 from registrations.utils.errors import InvalidRegistrationEntryError
 
+# ======================================================== #
+# Regex for datetime formatted timestamp.
+# The supported datetime format should be of the form:
+# • %Y-%m-%d [%H:%M:%S [%z]]
+# • %Y-%m-%dT%H:%M:%SZ
+#
+# Regex parses
+# %Y-%m-%d [%H:%M:%S [%z]]
+# %Y-%m-%d [%H:%M:%S]
+# %Y-%m-%d[T%H:%M:%SZ]
+# %Y-%m-%d
+# ======================================================== #
 DATE_TIME_REGEX = (
     r"^(\d{4}[/-]\d{2}[/-]\d{2})((T\d{2}[:/-]\d{2}[:/-]\d{2}Z)|(\s\d{2}[:/-]\d{2}[:/-]\d{2}){0,"
     r"1}(\s[+-]\d{0,4}){0,1})$"
@@ -136,8 +148,9 @@ class ToHospitalRegistrationEntry(
     def _parse_datetime(added_since: str) -> datetime.datetime:
         """Return datetime formatted timestamp.
 
-        The datetime format should be of the form:
-        %Y-%m-%d [%H:%M:%S [%z]]
+        The supported datetime format should be of the form:
+        - %Y-%m-%d [%H:%M:%S [%z]]
+        - %Y-%m-%dT%H:%M:%SZ
 
         :param added_since: str, date time string.
         :return: datetime.datetime, the parsed date time.
