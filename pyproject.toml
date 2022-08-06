@@ -69,17 +69,6 @@ warn_return_any = true
 show_error_codes = true
 warn_unused_ignores = true
 
-[[tool.mypy.overrides]]
-module = [
-    "email_validator.*",
-    "registrations/infrastructure/adapters/api/app.py",
-]
-disallow_any_unimported = false
-ignore_errors = true
-warn_return_any = false
-ignore_missing_imports = true
-
-
 # See: https://pydantic-docs.helpmanual.io/mypy_plugin/
 # mypy per-module options:
 [tool.pydantic-mypy]

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import asyncio
 import os.path
-from typing import Any
-from typing import Coroutine
 
 import fastapi
 import phonenumbers
