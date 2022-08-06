@@ -7,7 +7,7 @@ repos:
       - id: black
         exclude: venv
   - repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.8.1
+    rev: v3.8.2
     hooks:
       - id: reorder-python-imports
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -41,7 +41,14 @@ repos:
             "--msg-template={path}||{msg_id}||{symbol}||{category}||{line}||{column}||{msg}",
           ]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.961
+    rev: v0.971
     hooks:
       - id: mypy
         additional_dependencies: [pydantic>=1.9.1]
+        args:
+          [
+            "--config-file=pyproject.toml",
+            "--warn-unused-configs",
+            # See why: https://mypy.readthedocs.io/en/stable/installed_packages.html#using-installed-packages-with-mypy-pep-561
+            "--python-executable=.venv/bin/python3",
+          ]
