@@ -45,15 +45,20 @@ PYTHON_CONFIGURE_OPTS="--enable-loadable-sqlite-extensions --enable-optimization
 and then setup your poetry package in a separate virtual environment.
 For instance, this is the poetry package install in Ubuntu:
 1. Setup poetry like:```python3 -m pip install --user --no-cache-dir poetry```
-2. Create a `pyenv virtualenv 3.9.7 <YOUR VENV NAME>`
-3. `pyenv activate <YOUR VENV NAME>`
-4. Set your venv and install packages like:
-```bash
-poetry env use /home/<YOUR USERNAME>/.pyenv/versions/<PY_VERSION>/bin/python3 && poetry install
-```
-In this case the `PY_VERSION` is `3.9.7`
-You would need to do something similar in your OS platform specific environment.
-Refer to poetry documentation.
+2. Create a `pyenv virtualenv 3.9.7 .venv`;
+3. `pyenv activate .venv`; Unfortunately, for now we need to lock the name to `.venv`
+4. Set your venv and install packages configuration in a file `poetry.toml` like:
+    ```bash
+    # set virtualenvs
+    [virtualenvs]
+    create = true
+    in-project = true
+    path = ".venv"
+    ```
+5. Install packages like:
+    ```bash
+    poetry install -vvv
+    ```
 
 If you are locally developing & debugging you could do:
 ```bash
