@@ -7,7 +7,9 @@ import phonenumbers
 import uvloop
 from fastapi import Request
 
-from registrations.infrastructure.adapters.api.routers import register_hospital_router
+from registrations.infrastructure.adapters.api.routers import (
+    register_hospital_router,
+)
 from registrations.utils.errors import InvalidRegistrationEntryError
 
 app = fastapi.FastAPI(

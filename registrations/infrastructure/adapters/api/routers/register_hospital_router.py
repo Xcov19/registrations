@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import fastapi
 
-from registrations.domain.dto import (
-    ToHospitalRegistrationEntry,
-)
+from registrations.domain.dto import ToHospitalRegistrationEntry
 from registrations.infrastructure.adapters.api.di_builder import BootStrapDI
 from registrations.infrastructure.adapters.repos.dummy.repo import (
     DummyHospitalUOWAsyncImpl,

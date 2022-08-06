@@ -6,18 +6,20 @@ import logging
 import sys
 import time
 from concurrent.futures import Future
-from typing import Any
-from typing import Literal
-from typing import Optional
+from typing import Any, Literal, Optional
 
 import pydantic
 
 from registrations.domain.hospital import registration
-from registrations.domain.repo.registration_repo import InterfaceHospitalRepo
-from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
-from registrations.domain.repo.registration_repo import UOWSessionFlag
-from registrations.utils.errors import MissingRegistrationFieldError
-from registrations.utils.errors import ValidationModelType
+from registrations.domain.repo.registration_repo import (
+    InterfaceHospitalRepo,
+    InterfaceHospitalUOW,
+    UOWSessionFlag,
+)
+from registrations.utils.errors import (
+    MissingRegistrationFieldError,
+    ValidationModelType,
+)
 
 # Get current module logger
 

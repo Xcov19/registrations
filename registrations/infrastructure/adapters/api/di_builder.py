@@ -1,6 +1,5 @@
 """Dependency injection builder for dependencies to run API."""
-from typing import Optional
-from typing import Type
+from typing import Optional, Type
 
 from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 from registrations.domain.services.application_services import (
