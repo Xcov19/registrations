@@ -15,7 +15,7 @@ services:
 #      - POSTGRES_PORT=5432
 
   backend:
-    entrypoint: poetry run hypercorn -k uvloop --bind="0.0.0.0:8080" --debug --reload registrations.infrastructure.adapters.api.app:app
+    entrypoint: sh start.sh
     restart: always
     container_name: backend
     build:

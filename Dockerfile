@@ -11,6 +11,7 @@ COPY registrations /app/registrations
 COPY LICENSE /app
 COPY *.toml /app
 COPY poetry.lock /app
+COPY start.sh /app
 
 ENV PYTHONPATH /app
 RUN export PYTHONPATH=$PYTHONPATH:/app/registrations/
