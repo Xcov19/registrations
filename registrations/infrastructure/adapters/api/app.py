@@ -13,7 +13,6 @@ from registrations.infrastructure.adapters.api.routers import (
 )
 from registrations.utils.errors import InvalidRegistrationEntryError
 
-
 LOCAL_PORT = os.getenv("LOCAL_PORT")
 
 
