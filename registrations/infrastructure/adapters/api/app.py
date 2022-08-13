@@ -6,11 +6,42 @@ import fastapi
 import phonenumbers
 import uvloop
 from fastapi import Request
+from fastapi.middleware.cors import CORSMiddleware
 
 from registrations.infrastructure.adapters.api.routers import (
     register_hospital_router,
 )
 from registrations.utils.errors import InvalidRegistrationEntryError
+
+
+LOCAL_PORT = os.getenv("LOCAL_PORT")
+
+
+def build_cors_flight(app: fastapi.FastAPI) -> fastapi.FastAPI:
+    documentation_api = os.getenv("DOCUMENTATION_API")
+    allow_origins = [
+        f"0.0.0.0:{LOCAL_PORT}",
+        f"http://localhost:{LOCAL_PORT}",
+        f"https://localhost:{LOCAL_PORT}",
+        documentation_api,
+    ]
+    allow_methods = [
+        "GET",
+        "POST",
+    ]
+    allow_headers = [
+        "Content-Type",
+        "Authorization",
+        "Accept",
+    ]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allow_origins,
+        allow_methods=allow_methods,
+        allow_headers=allow_headers,
+    )
+    return app
+
 
 app = fastapi.FastAPI(
     title="XCoV19 Registrations service.",
@@ -20,6 +51,7 @@ app = fastapi.FastAPI(
     """,
 )
 app.include_router(register_hospital_router.router)
+app = build_cors_flight(app)
 
 
 @app.exception_handler(InvalidRegistrationEntryError)
@@ -51,7 +83,7 @@ if __name__ == "__main__":
     from hypercorn.config import Config
 
     config = Config()
-    config.bind = ["0.0.0.0:8080"]
+    config.bind = [f"0.0.0.0:{LOCAL_PORT}"]
     config_toml_file = os.path.join(os.path.dirname(__file__), "config.toml")
     if os.path.exists(config_toml_file):
         config.from_toml("config.toml")

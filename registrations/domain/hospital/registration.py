@@ -2,17 +2,22 @@ from __future__ import annotations
 
 import datetime
 import uuid
-from typing import Any, Dict, Optional, Union
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Union
 
-import email_validator
+import email_validator  # type: ignore  # Does not have a PEP 561 compliant package.
 import phonenumbers
 import pydantic
 from email_validator import EmailNotValidError
 from phonenumbers import parse as parse_number
 
-from registrations.domain.location.location import Address, AddressGeoLocation
+from registrations.domain.location.location import Address
+from registrations.domain.location.location import AddressGeoLocation
 from registrations.utils import enum_utils
 from registrations.utils.errors import MissingRegistrationFieldError
+
 
 # ************************************************* #
 # These are the domain entities of registration..
