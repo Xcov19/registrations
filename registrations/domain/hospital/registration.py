@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import uuid
 from typing import Any, Dict, Optional, Union
 
@@ -9,7 +10,7 @@ import pydantic
 from email_validator import EmailNotValidError
 from phonenumbers import parse as parse_number
 
-from registrations.domain.location.location import Address
+from registrations.domain.location.location import Address, AddressGeoLocation
 from registrations.utils import enum_utils
 from registrations.utils.errors import MissingRegistrationFieldError
 
@@ -87,6 +88,9 @@ HospitalEntryDictType = Union[
     Optional[OwnershipType],
     Address,
     PhoneNumber,
+    Optional[AddressGeoLocation],
+    datetime.datetime,
+    ContactPerson,
     Optional[VerificationStatus],
 ]
 
@@ -105,6 +109,11 @@ class HospitalEntryAggregate(pydantic.BaseModel, validate_assignment=True):
     ownership_type: Optional[OwnershipType]
     address: Address
     phone_number: PhoneNumber
+    # TODO: needs to be test covered in application service.
+    geo_location: Optional[AddressGeoLocation]
+    added_since: datetime.datetime = pydantic.Field(
+        default_factory=datetime.datetime.now, allow_mutation=False
+    )
 
     @classmethod
     def build_factory(cls, **kwargs: HospitalEntryDictType) -> HospitalEntityType:

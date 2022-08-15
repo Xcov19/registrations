@@ -17,3 +17,8 @@ class Address(pydantic.BaseModel, extra=pydantic.Extra.forbid):
         # 1. country
         # 2. state
         return values
+
+
+class AddressGeoLocation(pydantic.BaseModel, extra=pydantic.Extra.forbid):
+    latitude: float
+    longitude: float

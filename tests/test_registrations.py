@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import concurrent.futures
+import datetime
 import logging
 import sys
 import time
@@ -259,7 +260,7 @@ class TestHospitalRegistrationUOW:
 @pytest.mark.fast
 @pytest.mark.usefixtures("anyio_backend")
 class TestHospitalRegistrationService:
-    """Tests hospital registration service."""
+    """Tests hospital registration domain service."""
 
     def test_build_factory_valid_unverified_hospital(
         self, valid_unverified_hospital: dict
@@ -343,6 +344,16 @@ class TestHospitalRegistrationApplicationService:
             )
             hospital_repo_mock.save_unverified_hospital.assert_called_once()
             assert repo_instance.is_successful is True
+            called_kwargs = hospital_repo_mock.save_unverified_hospital.call_args.kwargs
+            assert called_kwargs["hospital_name"] == "A hospital"
+            assert called_kwargs["address"] == {
+                "street": "Rajaji marg",
+                "street2": None,
+                "city": "Newark",
+                "state": "MP",
+                "country": "IN",
+            }
+            assert called_kwargs["added_since"] == datetime.datetime(2022, 1, 1, 0, 0)
 
     async def test_register_hospital_unclaimed(
         self, registration_entry_unclaimed: dto.ToHospitalRegistrationEntry
