@@ -4,7 +4,7 @@ import datetime
 import uuid
 from typing import Any, Dict, Optional, Union
 
-import email_validator
+import email_validator  # type: ignore  # Does not have a PEP 561 compliant package.
 import phonenumbers
 import pydantic
 from email_validator import EmailNotValidError
@@ -42,7 +42,7 @@ class PhoneNumber(pydantic.BaseModel, allow_mutation=False, validate_assignment=
     @pydantic.validator("number", pre=True)
     @classmethod
     def _validate_number(cls, phone_number: str) -> str:
-        phonenum_obj: phonenumbers.PhoneNumber = parse_number(phone_number)  # type: ignore[no-any-unimported]
+        phonenum_obj: phonenumbers.PhoneNumber = parse_number(phone_number)
         if not (
             phonenumbers.is_possible_number(phonenum_obj)
             and phonenumbers.is_valid_number(phonenum_obj)

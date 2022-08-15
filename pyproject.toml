@@ -6,6 +6,7 @@ authors = ["codecakes <akulmat@protonmail.com>"]
 license = "GNU General Public License v3.0"
 include = ["registrations"]
 
+
 [tool.poetry.dependencies]
 python = "^3.9.7"
 fastapi = {version = "~=0.78.0", extras = ["all"]}
@@ -36,6 +37,7 @@ anyio = "~3.6.1"
 pytest-asyncio = "0.19.0"
 pysqlite3 = "^0.4.6"
 types-pytest-lazy-fixture = ">=0.6.3"
+mypy = "^0.971"
 
 [tool.pytest.ini_options]
 markers = [

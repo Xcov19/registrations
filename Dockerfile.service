@@ -17,3 +17,5 @@ RUN ln -s /app/start.sh /usr/local/bin/start.sh
 ENV PYTHONPATH /app
 RUN export PYTHONPATH=$PYTHONPATH:/app/registrations/
 RUN poetry install -vvv
+
+ENTRYPOINT sh /app/start.sh
