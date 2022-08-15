@@ -6,20 +6,18 @@ import logging
 import sys
 import time
 from concurrent.futures import Future
-from typing import Any, Literal, Optional
+from typing import Any
+from typing import Literal
+from typing import Optional
 
 import pydantic
 
 from registrations.domain.hospital import registration
-from registrations.domain.repo.registration_repo import (
-    InterfaceHospitalRepo,
-    InterfaceHospitalUOW,
-    UOWSessionFlag,
-)
-from registrations.utils.errors import (
-    MissingRegistrationFieldError,
-    ValidationModelType,
-)
+from registrations.domain.repo.registration_repo import InterfaceHospitalRepo
+from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
+from registrations.domain.repo.registration_repo import UOWSessionFlag
+from registrations.utils.errors import MissingRegistrationFieldError
+from registrations.utils.errors import ValidationModelType
 
 # Get current module logger
 
@@ -86,7 +84,6 @@ class DummyHospitalRepoImpl(InterfaceHospitalRepo):
             if not isinstance(self.session, FakeDBSession):
                 raise AssertionError("Should be a DB Session")
             self.session.session()
-            DUMMY_DB_LOGGER.error(f"{self} Parameters are {kwargs}")
             self.__success = True
             hospital_entry = registration.HospitalEntryAggregate.build_factory(**kwargs)
             if not isinstance(
@@ -95,6 +92,7 @@ class DummyHospitalRepoImpl(InterfaceHospitalRepo):
                 raise AssertionError
             return hospital_entry
         except (pydantic.ValidationError, AttributeError) as e:
+            DUMMY_DB_LOGGER.error(f"{self} Parameters are {kwargs}")
             raise e
 
     async def save_unclaimed_hospital(
@@ -104,13 +102,13 @@ class DummyHospitalRepoImpl(InterfaceHospitalRepo):
             if not isinstance(self.session, FakeDBSession):
                 raise AssertionError("Should be a DB Session")
             self.session.session()
-            DUMMY_DB_LOGGER.error(f"{self} Parameters are {kwargs}")
             self.__success = True
             hospital_entry = registration.HospitalEntryAggregate.build_factory(**kwargs)
             if not isinstance(hospital_entry, registration.UnclaimedHospital):
                 raise AssertionError
             return hospital_entry
         except pydantic.ValidationError as e:
+            DUMMY_DB_LOGGER.error(f"{self} Parameters are {kwargs}")
             raise e
 
 
