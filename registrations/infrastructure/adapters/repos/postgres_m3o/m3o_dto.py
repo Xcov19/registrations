@@ -5,19 +5,16 @@ from registrations.domain.hospital import registration
 
 def parse_to_dict(table: str, hospital_entry: registration.HospitalEntityType) -> dict:
     """Parses a hospital entry to a dictionary."""
-    hospital_dict: dict[str, str | float | dict] = {}
-    hospital_dict["id"] = hospital_entry.hospital_id.hex
-    hospital_dict["name"] = hospital_entry.hospital_name
-    hospital_dict = {
-        **hospital_dict,
+    hospital_dict: dict[str, str | float | dict] = {
+        "id": hospital_entry.hospital_id.hex,
+        "name": hospital_entry.hospital_name,
         "address": hospital_entry.address.dict(exclude_unset=True),
+        "contact_number": hospital_entry.phone_number.number,
+        "added_since": hospital_entry.added_since.isoformat(timespec="milliseconds"),
     }
     if hospital_entry.ownership_type:
         hospital_dict["ownership_type"] = str(hospital_entry.ownership_type.value)
-    hospital_dict["contact_number"] = hospital_entry.phone_number.number
-    hospital_dict["added_since"] = hospital_entry.added_since.isoformat(
-        timespec="milliseconds"
-    )
+
     if hospital_entry.geo_location:
         hospital_dict = {
             **hospital_dict,
