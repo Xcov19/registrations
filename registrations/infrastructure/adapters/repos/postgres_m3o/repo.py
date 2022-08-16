@@ -66,7 +66,7 @@ class M3OHospitalRepoImpl(InterfaceHospitalRepo):
         self, **kwargs: registration.HospitalEntryDictType
     ) -> registration.UnclaimedHospital:
         try:
-            # check if unverified hospital exists then return exists error.
+            # check if unclaimed hospital exists then return exists error.
             if self._record_exists(self.__unclaimed_hospital, **kwargs):
                 raise Exception("raise a real error")
             hospital_entry = registration.HospitalEntryAggregate.build_factory(**kwargs)
@@ -141,7 +141,7 @@ class M3OHospitalRepoImpl(InterfaceHospitalRepo):
             "accept": "application/json",
             "Authorization": f"Bearer {self.__session_api}",
         }
-        hospital_record_dict = m3o_dto.parse_to_dict(hospital_entry)
+        hospital_record_dict = m3o_dto.parse_to_dict(table, hospital_entry)
         json_payload = {"record": hospital_record_dict, "table": table}
         response = requests.post(url, json=json_payload, headers=headers)
         response.raise_for_status()
