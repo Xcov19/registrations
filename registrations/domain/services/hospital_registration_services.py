@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import abc
-from typing import Protocol
-from typing import Type
-from typing import TypeVar
+from typing import Protocol, Type, TypeVar
 
 import pydantic
 
-from registrations.domain.hospital.registration import HospitalEntityType
-from registrations.domain.hospital.registration import HospitalEntryAggregate
-from registrations.domain.hospital.registration import HospitalEntryDictType
-from registrations.domain.hospital.registration import UnclaimedHospital
-from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
+from registrations.domain.hospital.registration import (
+    HospitalEntityType,
+    HospitalEntryAggregate,
+    HospitalEntryDictType,
+    UnclaimedHospital,
+    UnverifiedRegisteredHospital,
+)
 from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 
 # ************************************************* #

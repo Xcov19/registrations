@@ -11,8 +11,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from registrations.infrastructure.adapters.api.routers import (
     register_hospital_router,
 )
-from registrations.utils.errors import InvalidRegistrationEntryError
-from registrations.utils.errors import RecordAlreadyExistsError
+from registrations.utils.errors import (
+    InvalidRegistrationEntryError,
+    RecordAlreadyExistsError,
+)
 
 LOCAL_PORT = os.getenv("LOCAL_PORT")
 
