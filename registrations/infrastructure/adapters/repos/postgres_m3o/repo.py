@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 from typing import Callable
-from typing import Optional
 
 import pydantic
 import requests
@@ -12,7 +11,7 @@ import requests
 from registrations.domain.hospital import registration
 from registrations.domain.repo.registration_repo import InterfaceHospitalRepo
 from registrations.infrastructure.adapters.repos.postgres_m3o import m3o_dto
-
+from registrations.utils.errors import RecordAlreadyExistsError
 
 M3O_DB_LOGGER = logging.getLogger(__name__)
 
@@ -41,7 +40,7 @@ class M3OHospitalRepoImpl(InterfaceHospitalRepo):
         try:
             # check if unverified hospital exists then return exists error.
             if self._record_exists(self.__unverified_tbl, **kwargs):
-                raise Exception("raise a real error")
+                raise RecordAlreadyExistsError(f"Record already exists.")
             hospital_entry = registration.HospitalEntryAggregate.build_factory(**kwargs)
             if not isinstance(
                 hospital_entry, registration.UnverifiedRegisteredHospital
@@ -68,7 +67,7 @@ class M3OHospitalRepoImpl(InterfaceHospitalRepo):
         try:
             # check if unclaimed hospital exists then return exists error.
             if self._record_exists(self.__unclaimed_hospital, **kwargs):
-                raise Exception("raise a real error")
+                raise RecordAlreadyExistsError(f"Record already exists.")
             hospital_entry = registration.HospitalEntryAggregate.build_factory(**kwargs)
             if not isinstance(hospital_entry, registration.UnclaimedHospital):
                 raise AssertionError

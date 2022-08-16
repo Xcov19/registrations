@@ -1,9 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Type, Union
+from typing import Any
+from typing import Optional
+from typing import Type
+from typing import Union
 
 import pydantic
-from pydantic import error_wrappers, main
+from pydantic import error_wrappers
+from pydantic import main
 
 ValidationModelType = Union[main.ModelMetaclass, Type[pydantic.BaseModel], Any]
 
@@ -23,6 +27,13 @@ class MissingRegistrationFieldError(pydantic.ValidationError):
 
 class InvalidRegistrationEntryError(Exception):
     """Raised when invalid hospital registration entry is provided."""
+
+    def __init__(self, error_msg: str):
+        super().__init__(error_msg)
+
+
+class RecordAlreadyExistsError(Exception):
+    """Raised when record already exists."""
 
     def __init__(self, error_msg: str):
         super().__init__(error_msg)

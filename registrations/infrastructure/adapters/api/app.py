@@ -12,6 +12,7 @@ from registrations.infrastructure.adapters.api.routers import (
     register_hospital_router,
 )
 from registrations.utils.errors import InvalidRegistrationEntryError
+from registrations.utils.errors import RecordAlreadyExistsError
 
 LOCAL_PORT = os.getenv("LOCAL_PORT")
 
@@ -71,6 +72,17 @@ async def invalid_phone_number_exception_handler(
 ) -> fastapi.responses.JSONResponse:
     return fastapi.responses.JSONResponse(
         status_code=fastapi.status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"message": f"{exc}"},
+    )
+
+
+@app.exception_handler(RecordAlreadyExistsError)
+async def record_exception_handler(
+    _request: Request,
+    exc: RecordAlreadyExistsError,
+) -> fastapi.responses.JSONResponse:
+    return fastapi.responses.JSONResponse(
+        status_code=fastapi.status.HTTP_409_CONFLICT,
         content={"message": f"{exc}"},
     )
 
