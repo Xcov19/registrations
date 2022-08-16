@@ -40,7 +40,7 @@ class M3OHospitalRepoImpl(InterfaceHospitalRepo):
         try:
             # check if unverified hospital exists then return exists error.
             if self._record_exists(self.__unverified_tbl, **kwargs):
-                raise RecordAlreadyExistsError(f"Record already exists.")
+                raise RecordAlreadyExistsError("Record already exists.")
             hospital_entry = registration.HospitalEntryAggregate.build_factory(**kwargs)
             if not isinstance(
                 hospital_entry, registration.UnverifiedRegisteredHospital
@@ -67,7 +67,7 @@ class M3OHospitalRepoImpl(InterfaceHospitalRepo):
         try:
             # check if unclaimed hospital exists then return exists error.
             if self._record_exists(self.__unclaimed_hospital, **kwargs):
-                raise RecordAlreadyExistsError(f"Record already exists.")
+                raise RecordAlreadyExistsError("Record already exists.")
             hospital_entry = registration.HospitalEntryAggregate.build_factory(**kwargs)
             if not isinstance(hospital_entry, registration.UnclaimedHospital):
                 raise AssertionError
