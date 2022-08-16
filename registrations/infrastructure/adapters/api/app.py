@@ -15,7 +15,6 @@ from registrations.utils.errors import (
     InvalidRegistrationEntryError,
     RecordAlreadyExistsError,
 )
-from registrations.utils.errors import InvalidRegistrationEntryError
 
 LOCAL_PORT = os.getenv("LOCAL_PORT")
 
