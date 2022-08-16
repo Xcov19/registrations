@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import abc
-from typing import Protocol, Type, TypeVar
+from typing import Protocol
+from typing import Type
+from typing import TypeVar
 
 import pydantic
 
-from registrations.domain.hospital.registration import (
-    HospitalEntityType,
-    HospitalEntryAggregate,
-    HospitalEntryDictType,
-    UnclaimedHospital,
-    UnverifiedRegisteredHospital,
-)
+from registrations.domain.hospital.registration import HospitalEntityType
+from registrations.domain.hospital.registration import HospitalEntryAggregate
+from registrations.domain.hospital.registration import HospitalEntryDictType
+from registrations.domain.hospital.registration import UnclaimedHospital
+from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
 from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 
 # ************************************************* #
@@ -91,6 +91,7 @@ class RegisterHospitalService:
             await uow_ctx.hospital_repo.save_unverified_hospital(
                 **unverified_hospital.dict()
             )
+            # TODO: add explicit uow_ctx.commit()
 
     @classmethod
     async def register_unclaimed_hospital(
@@ -108,3 +109,4 @@ class RegisterHospitalService:
             await uow_ctx.hospital_repo.save_unclaimed_hospital(
                 **unclaimed_hospital.dict()
             )
+            # TODO: add explicit uow_ctx.commit()

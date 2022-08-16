@@ -12,7 +12,8 @@ router = fastapi.APIRouter(
     tags=["hospitals", "registration"],
 )
 
-
+# TODO: Implement a function that plugs
+#  uow_di adapter based on test or prod env.
 bootstrapper = BootStrapDI(uow_di=DummyHospitalUOWAsyncImpl)
 
 
