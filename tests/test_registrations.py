@@ -1,41 +1,40 @@
 from __future__ import annotations
 
 import asyncio
+import collections.abc
 import concurrent.futures
 import datetime
 import logging
 import sys
 import time
 from concurrent.futures import Future
-from typing import Any, Literal, Optional
+from typing import Any
+from typing import Literal
+from typing import Optional
 from unittest import mock
 
 import pydantic
 import pytest
 
 from registrations.domain import dto
-from registrations.domain.hospital.registration import (
-    HospitalEntryAggregate,
-    HospitalEntryDictType,
-    UnclaimedHospital,
-    UnverifiedRegisteredHospital,
-)
-from registrations.domain.repo.registration_repo import (
-    InterfaceHospitalRepo,
-    InterfaceHospitalUOW,
-    UOWSessionFlag,
-)
+from registrations.domain.hospital.registration import HospitalEntryAggregate
+from registrations.domain.hospital.registration import HospitalEntryDictType
+from registrations.domain.hospital.registration import UnclaimedHospital
+from registrations.domain.hospital.registration import UnverifiedRegisteredHospital
+from registrations.domain.repo.registration_repo import InterfaceHospitalRepo
+from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
+from registrations.domain.repo.registration_repo import UOWSessionFlag
 from registrations.domain.services.application_services import (
     HospitalRegistrationApplicationService,
 )
 from registrations.domain.services.hospital_registration_services import (
     HospitalEntityType,
+)
+from registrations.domain.services.hospital_registration_services import (
     RegisterHospitalService,
 )
-from registrations.utils.errors import (
-    MissingRegistrationFieldError,
-    ValidationModelType,
-)
+from registrations.utils.errors import MissingRegistrationFieldError
+from registrations.utils.errors import ValidationModelType
 
 # **************************************************** #
 # These are plenty of inbuilt pytest fixtures. Use
@@ -279,7 +278,8 @@ class TestHospitalRegistrationService:
             RegisterHospitalService.build_hospital_factory(
                 **invalid_unverified_hospital
             )
-            assert "key_contact_registrar is required" in exc.value
+            if isinstance(exc.value, collections.abc.Iterable):
+                assert "key_contact_registrar is required" in exc.value
 
     def test_build_factory_valid_unclaimed_hospital(
         self, valid_unclaimed_hospital: dict
@@ -297,7 +297,9 @@ class TestHospitalRegistrationService:
             match=r".*key_contact_registrar is required.*",
         ) as exc:
             RegisterHospitalService.build_hospital_factory(**invalid_unclaimed_hospital)
-            assert "Field missing" in exc.value
+            # See: https://github.com/python/mypy/issues/2220#issuecomment-377374439
+            if isinstance(exc.value, collections.abc.Iterable):
+                assert "Field missing" in exc.value
 
     async def test_register_unverified_hospital(
         self,
@@ -370,3 +372,6 @@ class TestHospitalRegistrationApplicationService:
             )
             hospital_repo_mock.save_unclaimed_hospital.assert_called_once()
             assert repo_instance.is_successful is True
+
+
+# TODO: add tests for bootstrapper and m30 repo, uow
