@@ -3,28 +3,11 @@ from __future__ import annotations
 import fastapi
 
 from registrations.domain.dto import ToHospitalRegistrationEntry
-from registrations.infrastructure.adapters.api.di_builder import BootStrapDI
-from registrations.infrastructure.adapters.repos.dummy.repo import (
-    DummyHospitalUOWAsyncImpl,
-)
+from registrations.infrastructure.adapters.api import bootstrap
 
 router = fastapi.APIRouter(
     tags=["hospitals", "registration"],
 )
-
-# TODO: Implement a function that plugs
-#  uow_di adapter based on test or prod env.
-bootstrapper = BootStrapDI(uow_di=DummyHospitalUOWAsyncImpl)
-
-
-@router.on_event("startup")
-def startup() -> None:
-    bootstrapper.run()
-
-
-@router.on_event("shutdown")
-async def shutdown() -> None:
-    await bootstrapper.shutdown()
 
 
 @router.post(
@@ -35,8 +18,8 @@ async def shutdown() -> None:
 async def register_hospital_center(
     healthcare_data: ToHospitalRegistrationEntry,
 ) -> ToHospitalRegistrationEntry:
-    if bootstrapper.uow is not None:
-        await bootstrapper.registration_service.register_hospital(
-            bootstrapper.uow, healthcare_data
+    if bootstrap.bootstrapper.uow is not None:
+        await bootstrap.bootstrapper.registration_service.register_hospital(
+            bootstrap.bootstrapper.uow, healthcare_data
         )
     return healthcare_data

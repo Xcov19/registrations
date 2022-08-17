@@ -8,13 +8,12 @@ import uvloop
 from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from registrations.infrastructure.adapters.api import bootstrap
 from registrations.infrastructure.adapters.api.routers import (
     register_hospital_router,
 )
-from registrations.utils.errors import (
-    InvalidRegistrationEntryError,
-    RecordAlreadyExistsError,
-)
+from registrations.utils.errors import InvalidRegistrationEntryError
+from registrations.utils.errors import RecordAlreadyExistsError
 
 LOCAL_PORT = os.getenv("LOCAL_PORT")
 
@@ -56,6 +55,22 @@ app.include_router(register_hospital_router.router)
 app = build_cors_flight(app)
 
 
+# ============================ #
+# Set event handlers.
+# ============================ #
+@app.on_event("startup")
+def startup() -> None:
+    bootstrap.bootstrapper.run()
+
+
+@app.on_event("shutdown")
+async def shutdown() -> None:
+    await bootstrap.bootstrapper.shutdown()
+
+
+# ============================ #
+# Handle all exceptions and return a JSON response.
+# ============================ #
 @app.exception_handler(InvalidRegistrationEntryError)
 async def invalid_entry_exception_handler(
     _request: Request,

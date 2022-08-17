@@ -4,14 +4,19 @@ import logging
 import os
 import sys
 from typing import Callable
+from typing import Literal
 
 import pydantic
 import requests
 
 from registrations.domain.hospital import registration
 from registrations.domain.repo.registration_repo import InterfaceHospitalRepo
+from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
+from registrations.domain.repo.registration_repo import UOWSessionFlag
 from registrations.infrastructure.adapters.repos.postgres_m3o import m3o_dto
+from registrations.utils.errors import MissingRegistrationFieldError
 from registrations.utils.errors import RecordAlreadyExistsError
+from registrations.utils.errors import ValidationModelType
 
 M3O_DB_LOGGER = logging.getLogger(__name__)
 
@@ -28,8 +33,8 @@ M3O_API_TOKEN = os.getenv("M3O_API_TOKEN")
 
 
 class M3OHospitalRepoImpl(InterfaceHospitalRepo):
-    def __init__(self) -> None:
-        self.__session_api = M3O_API_TOKEN
+    def __init__(self, m3o_token: str | None = None) -> None:
+        self.__session_api = m3o_token
         self.__unverified_tbl = "unverified_hospital"
         self.__unclaimed_hospital = "unclaimed_hospital"
         self.pending_transaction: list[Callable] = []
@@ -95,9 +100,14 @@ class M3OHospitalRepoImpl(InterfaceHospitalRepo):
     ) -> None:
         self.pending_transaction += [lambda: executable(table, **kwargs)]
 
-    def set_executable(self) -> None:
+    async def set_executable(self) -> None:
         for each_callable_transaction in self.pending_transaction:
             each_callable_transaction()
+
+    @property
+    def has_session_key(self) -> bool:
+        """Checks if session key is set."""
+        return bool(self.__session_api)
 
     def _record_exists(
         self, table: str, /, **kwargs: registration.HospitalEntryDictType
@@ -147,3 +157,74 @@ class M3OHospitalRepoImpl(InterfaceHospitalRepo):
         if (json_response := response.json()) and isinstance(json_response, dict):
             return json_response
         return None
+
+
+# **************************************************** #
+# Hospital unit of work for M3O Postgres database.
+# **************************************************** #
+class M3OHospitalUOWAsyncImpl(InterfaceHospitalUOW):
+    hospital_repo = M3OHospitalRepoImpl(M3O_API_TOKEN)
+
+    async def commit(self) -> Literal[UOWSessionFlag.COMMITTED]:
+        """Commit the unit of work."""
+        M3O_DB_LOGGER.info("Committing unit of work")
+        await self.hospital_repo.set_executable()
+        M3O_DB_LOGGER.info("committed.")
+        return UOWSessionFlag.COMMITTED
+
+    async def rollback(self) -> Literal[UOWSessionFlag.ROLLED_BACK]:
+        """Rollback the unit of work."""
+        M3O_DB_LOGGER.error(
+            "Rolling back unit of work.\nClearing pending transactions."
+        )
+        self.hospital_repo.pending_transaction.clear()
+        return UOWSessionFlag.ROLLED_BACK
+
+    async def close(self) -> Literal[UOWSessionFlag.CLOSED]:
+        """Close the unit of work."""
+        M3O_DB_LOGGER.info("Closing M3O UOW session.")
+        return UOWSessionFlag.CLOSED
+
+    async def __aenter__(self) -> M3OHospitalUOWAsyncImpl:
+        """Create a storage session using unit of work."""
+        try:
+            M3O_DB_LOGGER.info("Setting db_session to UOW repo.")
+            # TODO: These should be changed from AssertionError
+            if not self.hospital_repo.has_session_key:
+                raise AssertionError("Session key is not set.")
+            if self.hospital_repo.pending_transaction:
+                error_msg = (
+                    "There are pending transactions.\n"
+                    "This is atomically an error that things "
+                    "did not entirely execute the last time."
+                    f"{self.hospital_repo.pending_transaction}"
+                )
+                raise AssertionError(error_msg)
+            return self
+        except (AttributeError, AssertionError, pydantic.ValidationError) as e:
+            M3O_DB_LOGGER.error(f"Error: {e}\n{self}", exc_info=e, stack_info=True)
+            raise e
+
+    async def __aexit__(
+        self,
+        exc_type: Exception,
+        exc_val: str | MissingRegistrationFieldError,
+        exc_tb: str,
+    ) -> None:
+        """Exit context manager."""
+        if exc_val:
+            M3O_DB_LOGGER.exception(
+                "Error during UOW exit.", exc_info=exc_type, stack_info=True
+            )
+            await self.rollback()
+            M3O_DB_LOGGER.error("Error: Closed M3O UOW session.")
+            if exc_type == AttributeError:
+                raise AttributeError(exc_val)
+            if exc_type == MissingRegistrationFieldError:
+                M3O_DB_LOGGER.error(
+                    exc_val, exc_info=(type(exc_type), BaseException(exc_tb), None)
+                )
+                if isinstance(exc_val, str):
+                    raise AssertionError
+                model: ValidationModelType = exc_val.model
+                raise MissingRegistrationFieldError(str(exc_type), model, exc_tb)
