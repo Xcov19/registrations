@@ -3,20 +3,23 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import Callable
-from typing import Literal
+from typing import Callable, Literal
 
 import pydantic
 import requests
 
 from registrations.domain.hospital import registration
-from registrations.domain.repo.registration_repo import InterfaceHospitalRepo
-from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
-from registrations.domain.repo.registration_repo import UOWSessionFlag
+from registrations.domain.repo.registration_repo import (
+    InterfaceHospitalRepo,
+    InterfaceHospitalUOW,
+    UOWSessionFlag,
+)
 from registrations.infrastructure.adapters.repos.postgres_m3o import m3o_dto
-from registrations.utils.errors import MissingRegistrationFieldError
-from registrations.utils.errors import RecordAlreadyExistsError
-from registrations.utils.errors import ValidationModelType
+from registrations.utils.errors import (
+    MissingRegistrationFieldError,
+    RecordAlreadyExistsError,
+    ValidationModelType,
+)
 
 M3O_DB_LOGGER = logging.getLogger(__name__)
 

@@ -1,10 +1,10 @@
 # Application Service
 import abc
-from typing import Protocol
-from typing import Type
+from typing import Protocol, Type
 
 from registrations.domain.dto import ToHospitalRegistrationEntry
 from registrations.domain.services import hospital_registration_services
+
 
 # ===================================================== #
 # Define various application service level interfaces.

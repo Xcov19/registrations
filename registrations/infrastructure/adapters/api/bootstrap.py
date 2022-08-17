@@ -4,8 +4,10 @@ import os
 from registrations.domain.services.application_services import (
     HospitalRegistrationApplicationService,
 )
-from registrations.infrastructure.adapters.api.di_builder import BootStrapDI
-from registrations.infrastructure.adapters.api.di_builder import DIMapping
+from registrations.infrastructure.adapters.api.di_builder import (
+    BootStrapDI,
+    DIMapping,
+)
 from registrations.infrastructure.adapters.repos.dummy.repo import (
     DummyHospitalUOWAsyncImpl,
 )
