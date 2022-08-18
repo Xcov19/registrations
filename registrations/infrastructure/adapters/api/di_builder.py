@@ -1,27 +1,42 @@
 """Dependency injection builder for dependencies to run API."""
 from __future__ import annotations
 
-from typing import Optional, Type
-
-import pydantic
+from typing import Optional
+from typing import Protocol
+from typing import Type
+from typing import runtime_checkable
 
 from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 from registrations.domain.services.application_services import (
-    HospitalRegistrationApplicationService,
     InterfaceRegistrationService,
 )
 
 
-class DIMapping(pydantic.BaseModel):
-    """Dependency injection mapping for API."""
+@runtime_checkable
+class InterfaceDIMapping(Protocol):
 
-    # ============================ #
-    # Add dependency fields for uows, services as needed.
-    # If more services are added, add them to the services list below.
-    # They should then be mapped to initial values in the mapping_di.
-    # ============================ #
     hospital_uow_async: Type[InterfaceHospitalUOW]
     hospital_registration_application_service: Type[InterfaceRegistrationService]
+
+
+class DIMapping(InterfaceDIMapping):
+    """Dependency injection mapping for API.
+
+    Add dependency fields for uows, services as needed.
+    If more services are added, add them to the services list below.
+    They should then be mapped to initial values in the mapping_di.
+    """
+
+    def __init__(
+        self,
+        hospital_uow_async: Type[InterfaceHospitalUOW],
+        hospital_registration_application_service: Type[InterfaceRegistrationService],
+    ):
+
+        self.hospital_uow_async = hospital_uow_async
+        self.hospital_registration_application_service = (
+            hospital_registration_application_service
+        )
 
 
 class BootStrapDI:
