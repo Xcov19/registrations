@@ -1,10 +1,7 @@
 """Dependency injection builder for dependencies to run API."""
 from __future__ import annotations
 
-from typing import Optional
-from typing import Protocol
-from typing import Type
-from typing import runtime_checkable
+from typing import Optional, Protocol, Type, runtime_checkable
 
 from registrations.domain.repo.registration_repo import InterfaceHospitalUOW
 from registrations.domain.services.application_services import (
