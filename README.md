@@ -138,7 +138,7 @@ registrations/
 
 ### Pending Todos:
 - [x] dockerize
-- [x] postgresql plug (m3o)
+- [x] postgresql plug (m3o); [See here](https://github.com/Xcov19/registrations/pull/30#issue-1340536435)
 - [ ] Add cron job for Gdata API pull from gsheets
 - [ ] Enrich the Api to save more healthcare metadata
 - [ ] ~~nosql plug~~
