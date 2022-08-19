@@ -6,6 +6,9 @@ from registrations.domain.dto import ToHospitalRegistrationEntry
 from registrations.domain.services import hospital_registration_services
 
 
+# ===================================================== #
+# Define various application service level interfaces.
+# ===================================================== #
 class InterfaceLookAheadService(Protocol):
     """Look ahead service for already registered hospitals."""
 
@@ -18,8 +21,22 @@ class InterfaceLookAheadService(Protocol):
         raise NotImplementedError
 
 
+class InterfaceRegistrationService(Protocol):
+    """Interface for registration service for hospitals."""
+
+    @classmethod
+    @abc.abstractmethod
+    async def register_hospital(
+        cls,
+        hospital_uow_async: Type[hospital_registration_services.InterfaceHospitalUOW],
+        registration_entry: ToHospitalRegistrationEntry,
+    ) -> ToHospitalRegistrationEntry:
+        """Registers a hospital."""
+        raise NotImplementedError
+
+
 # Application Service for CRUD-like calls.
-class HospitalRegistrationApplicationService:
+class HospitalRegistrationApplicationService(InterfaceRegistrationService):
     """Application service for hospital registration."""
 
     @classmethod

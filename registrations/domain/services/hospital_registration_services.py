@@ -91,6 +91,7 @@ class RegisterHospitalService:
             await uow_ctx.hospital_repo.save_unverified_hospital(
                 **unverified_hospital.dict()
             )
+            await uow_ctx.commit()
 
     @classmethod
     async def register_unclaimed_hospital(
@@ -108,3 +109,4 @@ class RegisterHospitalService:
             await uow_ctx.hospital_repo.save_unclaimed_hospital(
                 **unclaimed_hospital.dict()
             )
+            await uow_ctx.commit()

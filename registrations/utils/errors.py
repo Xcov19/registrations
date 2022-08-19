@@ -26,3 +26,10 @@ class InvalidRegistrationEntryError(Exception):
 
     def __init__(self, error_msg: str):
         super().__init__(error_msg)
+
+
+class RecordAlreadyExistsError(Exception):
+    """Raised when record already exists."""
+
+    def __init__(self, error_msg: str):
+        super().__init__(error_msg)

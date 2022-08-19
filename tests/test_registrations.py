@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import collections.abc
 import concurrent.futures
 import datetime
 import logging
@@ -279,7 +280,8 @@ class TestHospitalRegistrationService:
             RegisterHospitalService.build_hospital_factory(
                 **invalid_unverified_hospital
             )
-            assert "key_contact_registrar is required" in exc.value
+            if isinstance(exc.value, collections.abc.Iterable):
+                assert "key_contact_registrar is required" in exc.value
 
     def test_build_factory_valid_unclaimed_hospital(
         self, valid_unclaimed_hospital: dict
@@ -297,7 +299,9 @@ class TestHospitalRegistrationService:
             match=r".*key_contact_registrar is required.*",
         ) as exc:
             RegisterHospitalService.build_hospital_factory(**invalid_unclaimed_hospital)
-            assert "Field missing" in exc.value
+            # See: https://github.com/python/mypy/issues/2220#issuecomment-377374439
+            if isinstance(exc.value, collections.abc.Iterable):
+                assert "Field missing" in exc.value
 
     async def test_register_unverified_hospital(
         self,
@@ -370,3 +374,6 @@ class TestHospitalRegistrationApplicationService:
             )
             hospital_repo_mock.save_unclaimed_hospital.assert_called_once()
             assert repo_instance.is_successful is True
+
+
+# TODO: add tests for bootstrapper and m30 repo, uow

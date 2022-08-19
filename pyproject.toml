@@ -26,6 +26,8 @@ orm = {version = "~=0.3.0", extras = ["postgresql"]}
 SQLAlchemy = "~=1.4.27"
 phonenumbers = "~=8.12.50"
 email-validator = "~=1.2.1"
+requests = "~=2.28.1"
+types-requests = "~2.28.8"
 
 [tool.poetry.dev-dependencies]
 pytest = "7.1.2"
