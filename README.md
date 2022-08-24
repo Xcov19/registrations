@@ -138,10 +138,12 @@ registrations/
 
 ### Pending Todos:
 - [x] dockerize
-- [ ] postgresql plug
-- [ ] nosql plug
-- [ ] add project to supabase.io
-- [ ] [add support for alembic auto schema versioning](https://alembic.sqlalchemy.org/en/latest/autogenerate.html)
-- [ ] upgrade docker file with shell scripts that run alembic migrations and run fastapi hypercorn server.
+- [x] postgresql plug (m3o); [See here](https://github.com/Xcov19/registrations/pull/30#issue-1340536435)
+- [ ] Add cron job for Gdata API pull from gsheets
+- [ ] Enrich the Api to save more healthcare metadata
+- [ ] ~~nosql plug~~
+- [ ] ~~add project to supabase.io~~
+- [ ] ~~[add support for alembic auto schema versioning](https://alembic.sqlalchemy.org/en/latest/autogenerate.html)~~
+- [ ] ~~upgrade docker file with shell scripts that run alembic migrations and run fastapi hypercorn server.~~
 - [ ] [expose protobuf grpc api for other services to consume registered hospital data](https://github.com/grpc-ecosystem/grpc-cloud-run-example/blob/master/python/README.md). [Read grpc literature here](https://grpc.io/docs/what-is-grpc/core-concepts/#rpc-life-cycle)
-- [ ] deploy to google cloud run
+- [x] deploy to google cloud run
