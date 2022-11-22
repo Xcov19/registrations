@@ -1,3 +1,0 @@
-black[d]
-pre-commit
-setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
