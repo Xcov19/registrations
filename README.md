@@ -2,6 +2,8 @@
 
 [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
 
+[![Python Fast Tests](https://github.com/Xcov19/registrations/actions/workflows/pytest-fast.yml/badge.svg)](https://github.com/Xcov19/registrations/actions/workflows/pytest-fast.yml)
+
 Microservice that allows CCCs (covid health care centers) to register themselves via a web form.
 This service provides an unverified dump of registered hospitals.
 
