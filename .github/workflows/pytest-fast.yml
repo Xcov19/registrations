@@ -24,8 +24,10 @@ jobs:
     - name: Setup Node.js environment
       uses: actions/setup-node@v4.0.0
       with:
-        node-version: 20
-    - uses: Gr1N/setup-poetry@v7
+        node-version: '20'
+    - uses: Gr1N/setup-poetry@v8
+      with:
+        poetry-preview: true
     - uses: actions/cache@v2
       with:
         path: ~/.cache/pypoetry/virtualenvs
