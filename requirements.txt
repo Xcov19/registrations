@@ -1,4 +1,4 @@
 fastapi[all]
 hypercorn
 pre-commit
-gunicorn==20.1.0
+gunicorn==23.0.0
